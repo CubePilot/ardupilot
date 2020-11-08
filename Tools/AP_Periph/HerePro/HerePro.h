@@ -27,6 +27,8 @@
 #include <AP_Scripting/AP_Scripting.h>
 #include <AP_RTC/AP_RTC.h>
 
+#define NUM_CAN_IFACES 3
+
 class HerePro_FW : public AP_Periph_FW {
     GCS_HerePro _gcs;
     AP_Notify notify;
@@ -69,6 +71,10 @@ class HerePro_FW : public AP_Periph_FW {
     static HerePro_FW* _singleton;
 
     uint32_t last_vehicle_state;
+
+    uint32_t send_next_node_id_allocation_request_at_ms[NUM_CAN_IFACES]; ///< When the next node ID allocation request should be sent
+    uint8_t node_id_allocation_unique_id_offset[NUM_CAN_IFACES];         ///< Depends on the stage of the next request
+
 public:
     HerePro_FW();
 
@@ -85,10 +91,23 @@ public:
     void can_gps_update() override;
     void can_mag_update() override;
     void handle_RTCMStreamSend();
-
     void handle_lightscommand(CanardInstance* isns, CanardRxTransfer* transfer) override;
     void handle_herepro_notify(CanardInstance* isns, CanardRxTransfer* transfer) override;
-    
+
+    // Methods overriden for multi interface support
+    void can_start() override;
+    void processTx(void) override;
+    void processRx(void) override;
+    int16_t canard_broadcast(uint64_t data_type_signature,
+                                        uint16_t data_type_id,
+                                        uint8_t priority,
+                                        const void* payload,
+                                        uint16_t payload_len) override;
+    uint16_t pool_peak_percent(void) override;
+    void cleanup_stale_trx(uint64_t &timestamp_usec) override;
+    bool can_do_dna(uint8_t iface);
+    void handle_allocation_response(CanardInstance* isns, CanardRxTransfer* transfer) override;
+
     // Handled under LUA script to control LEDs
     float get_yaw_earth() { return yaw_earth; }
     uint32_t get_vehicle_state() { return vehicle_state; }
