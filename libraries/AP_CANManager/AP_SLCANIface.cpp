@@ -626,6 +626,10 @@ bool SLCAN::CANIface::select(bool &read, bool &write, const AP_HAL::CANFrame* co
         return ret;
     }
 
+    if (!ret) {
+        read = false;
+    }
+
     // if under passthrough, we only do send when can_iface also allows it
     if (_port->available_locked(_serial_lock_key) || rx_queue_.available()) {
         // allow for receiving messages over slcan
