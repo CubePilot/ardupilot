@@ -12,6 +12,7 @@
 #include "../AP_Bootloader/app_comms.h"
 #include "hwing_esc.h"
 #include "canard.h"
+#include <uavcan/protocol/NodeStatus.h>
 
 #if defined(HAL_PERIPH_NEOPIXEL_COUNT) || defined(HAL_PERIPH_ENABLE_NCP5623_LED)
 #define AP_PERIPH_HAVE_LED
@@ -26,28 +27,41 @@
 extern const struct app_descriptor app_descriptor;
 
 class AP_Periph_FW {
+private:
+    uint32_t send_next_node_id_allocation_request_at_ms; ///< When the next node ID allocation request should be sent
+    uint8_t node_id_allocation_unique_id_offset;         ///< Depends on the stage of the next request
+
 public:
     virtual void init();
     virtual void update();
     Parameters g;
 
-    // CAN methods
-    static CanardInstance canard;
-    static uint8_t PreferredNodeID;
-    static uint8_t transfer_id;
+    uavcan_protocol_NodeStatus node_status;
 
     static void fix_float16(float &f);
-    static uint16_t pool_peak_percent();
+    virtual uint16_t pool_peak_percent();
     static void can_printf(const char *fmt, ...);
     static void onTransferReceived(CanardInstance* ins,
                                CanardRxTransfer* transfer);
+    static uint16_t get_random_range(uint16_t range);
+    static void readUniqueID(uint8_t* out_uid);
 
-    void processTx();
-    void processRx();
+    virtual void processTx();
+    virtual void processRx();
+    virtual void cleanup_stale_trx(uint64_t &timestamp_usec);
     void process1HzTasks(uint64_t timestamp_usec);
     void can_wait_node_id(void);
-
-    void handle_allocation_response(CanardInstance* ins, CanardRxTransfer* transfer);
+    virtual int16_t canard_broadcast(uint64_t data_type_signature,
+                        uint16_t data_type_id,
+                        uint8_t priority,
+                        const void* payload,
+                        uint16_t payload_len);
+    static bool shouldAcceptTransfer(const CanardInstance* ins,
+                                 uint64_t* out_data_type_signature,
+                                 uint16_t data_type_id,
+                                 CanardTransferType transfer_type,
+                                 uint8_t source_node_id);
+    virtual void handle_allocation_response(CanardInstance* ins, CanardRxTransfer* transfer);
     void handle_get_node_info(CanardInstance* ins, CanardRxTransfer* transfer);
     void handle_begin_firmware_update(CanardInstance* ins, CanardRxTransfer* transfer);
     void handle_param_getset(CanardInstance* ins, CanardRxTransfer* transfer);
