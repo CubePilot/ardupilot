@@ -56,6 +56,21 @@ public:
     // return true if cycle count can be provided and fills in cycles argument
     virtual bool get_cycle_count(uint16_t &cycles) const { return false; }
 
+    // return true if power on was successful
+    virtual bool power_on() { return false; }
+
+    // return true if power off was successful
+    virtual bool power_off() { return false; }
+
+    // return true if start charging was successful
+    virtual bool start_charging() { return false; }
+
+    // return true if stop charging was successful
+    virtual bool stop_charging() { return false; }
+
+    virtual bool is_charging() { return false; }
+    virtual bool is_balancing() { return false; }
+
     /// get voltage with sag removed (based on battery current draw and resistance)
     /// this will always be greater than or equal to the raw voltage
     float voltage_resting_estimate() const;

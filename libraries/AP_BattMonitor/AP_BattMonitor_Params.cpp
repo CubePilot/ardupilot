@@ -9,11 +9,19 @@
   #define DEFAULT_LOW_BATTERY_VOLTAGE 0.0f
 #endif // APM_BUILD_COPTER_OR_HELI
 
+#ifndef AP_BATT_CAPACITY_MAH_DEFAULT
+#define AP_BATT_CAPACITY_MAH_DEFAULT 3300
+#endif
+
 const AP_Param::GroupInfo AP_BattMonitor_Params::var_info[] = {
     // @Param: MONITOR
     // @DisplayName: Battery monitoring
     // @Description: Controls enabling monitoring of the battery's voltage and current
+<<<<<<< HEAD
     // @Values: 0:Disabled,3:Analog Voltage Only,4:Analog Voltage and Current,5:Solo,6:Bebop,7:SMBus-Generic,8:DroneCAN-BatteryInfo,9:ESC,10:SumOfFollowing,11:FuelFlow,12:FuelLevelPWM,13:SMBUS-SUI3,14:SMBUS-SUI6,15:NeoDesign,16:SMBus-Maxell,17:Generator-Elec,18:Generator-Fuel,19:Rotoye,20:MPPT,21:INA2XX,22:LTC2946,23:Torqeedo
+=======
+    // @Values: 0:Disabled,3:Analog Voltage Only,4:Analog Voltage and Current,5:Solo,6:Bebop,7:SMBus-Generic,8:UAVCAN-BatteryInfo,9:BLHeli ESC,10:SumOfFollowing,11:FuelFlow,12:FuelLevelPWM,13:SMBUS-SUI3,14:SMBUS-SUI6,15:NeoDesign,16:SMBus-Maxell,17:BQ769x0
+>>>>>>> 1d180f00fb (wip)
     // @User: Standard
     // @RebootRequired: True
     AP_GROUPINFO_FLAGS("MONITOR", 1, AP_BattMonitor_Params, _type, int8_t(AP_BattMonitor::Type::NONE), AP_PARAM_FLAG_ENABLE),
@@ -34,7 +42,7 @@ const AP_Param::GroupInfo AP_BattMonitor_Params::var_info[] = {
     // @Units: mAh
     // @Increment: 50
     // @User: Standard
-    AP_GROUPINFO("CAPACITY", 7, AP_BattMonitor_Params, _pack_capacity, 3300),
+    AP_GROUPINFO("CAPACITY", 7, AP_BattMonitor_Params, _pack_capacity, AP_BATT_CAPACITY_MAH_DEFAULT),
 
     // @Param{Plane}: WATT_MAX
     // @DisplayName: Maximum allowed power (Watts)
