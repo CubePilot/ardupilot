@@ -464,6 +464,7 @@ uint32_t stack_free(void *stack_base)
     }
     return ((uint32_t)p) - (uint32_t)stack_base;
 }
+#endif
 
 #if defined(SECURE) && SECURE==1
 #define CUSTOM_RAND_TYPE uint32_t
