@@ -127,6 +127,30 @@ uint8_t crc8_dvb_update(uint8_t crc, const uint8_t* buf, const uint16_t buf_len)
 {
     for (uint16_t i = 0; i < buf_len; i++) {
         crc = crc8_dvb(buf[i], crc, 0x7);
+        }
+    return crc;
+}
+
+// CRC ITT https://github.com/LibreSolar/bq769x0_mbed_lib/blob/master/bq769x0.cpp
+uint8_t crc8_ccitt_update(uint8_t crc, uint8_t data)
+{
+    data = crc ^ data;
+    for (uint8_t i = 0; i < 8; i++ ) {
+        if (( data & 0x80 ) != 0 ) {
+            data <<= 1;
+            data ^= 0x07;
+        } else {
+            data <<= 1;
+        }
+    }
+    return data;
+}
+
+uint8_t crc8_ccitt(const uint8_t *data, uint16_t len)
+{
+    uint16_t crc = 0;
+    for (uint16_t i=0; i<len; i++) {
+        crc = crc8_ccitt_update(crc, data[i]);
     }
     return crc;
 }
