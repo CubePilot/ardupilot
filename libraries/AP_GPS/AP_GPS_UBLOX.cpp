@@ -355,6 +355,8 @@ AP_GPS_UBLOX::_request_next_config(void)
             if (!_configure_valget(ConfigKey::CFG_TMODE_MODE)) {
                 _next_message--;
             }
+        } else if (!_send_message(CLASS_CFG, MSG_CFG_TMODE3, nullptr, 0)) {
+            _next_message--;
         }
         break;
     case STEP_RTK_MOVBASE:
@@ -1090,6 +1092,9 @@ AP_GPS_UBLOX::_legacy_config_update(void)
                 case MSG_CFG_TP5:
                     _unconfigured_messages &= ~CONFIG_TP5;
                     break;
+                case MSG_CFG_TMODE3:
+                    _unconfigured_messages &= ~CONFIG_TMODE_MODE;
+                    break;
                 }
 
                 break;
@@ -1339,6 +1344,22 @@ AP_GPS_UBLOX::_legacy_config_update(void)
             return false;
         }
 #endif // CONFIGURE_PPS_PIN
+        case MSG_CFG_TMODE3:{
+            Debug("TMODE_MODE %u\n", (unsigned)_buffer.tmode3.flags);
+            // check if we need to configure TIME_MODE
+            if (_buffer.tmode3.flags & 0x01) {
+                // ask for mode 0, to disable TIME mode
+                _buffer.tmode3.flags = 0;
+                _send_message(CLASS_CFG, MSG_CFG_TMODE3,
+                              &_buffer.tmode3,
+                              sizeof(_buffer.tmode3));
+                _unconfigured_messages |= CONFIG_TMODE_MODE;
+                _cfg_needs_save = true;
+            } else {
+                _unconfigured_messages &= ~CONFIG_TMODE_MODE;
+            }
+            return false;
+        }
         case MSG_CFG_VALGET: {
             uint8_t cfg_len = _payload_length - sizeof(ubx_cfg_valget);
             const uint8_t *cfg_data = (const uint8_t *)(&_buffer) + sizeof(ubx_cfg_valget);
