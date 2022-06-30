@@ -957,7 +957,12 @@ class ChibiOSHWDef(object):
             f.write('#define HAL_USE_SERIAL_USB TRUE\n')
         if 'OTG2' in self.bytype:
             f.write('#define STM32_USB_USE_OTG2                  TRUE\n')
-
+        if 'OTG_HS' in self.bytype:
+            f.write('#define STM32_OTG2_IS_OTG1                  FALSE\n')
+            f.write('#define STM32_USB_USE_OTG2                  TRUE\n')
+            f.write('#define HAL_USE_USB TRUE\n')
+            f.write('#define HAL_USE_SERIAL_USB TRUE\n')
+            f.write('#define BOARD_OTG2_USES_ULPI\n')
         if 'ETH1' in self.bytype:
             f.write('// Configure for Ethernet support\n')
             f.write('#define CH_CFG_USE_MAILBOXES                TRUE\n')
@@ -2862,7 +2867,7 @@ INCLUDE common.ld
         '''check type of a pin line is valid'''
         patterns = [
             r'INPUT', r'OUTPUT', r'TIM\d+', r'USART\d+', r'UART\d+', r'ADC\d+',
-            r'SPI\d+', r'OTG\d+', r'SWD', r'CAN\d?', r'I2C\d+', r'CS',
+            r'SPI\d+', r'OTG\d+', r'OTG_HS', r'SWD', r'CAN\d?', r'I2C\d+', r'CS',
             r'SDMMC\d+', r'SDIO', r'QUADSPI\d', r'OCTOSPI\d', r'ETH\d', r'RCC',
         ]
         matches = False
