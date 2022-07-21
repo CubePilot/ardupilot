@@ -148,6 +148,12 @@ public:
      */
     FileData *load_file(const char *filename);
 
+    // block filesystem access
+    void block_access(void);
+
+    // free filesystem access
+    void free_access(void);
+    
     // get_singleton for scripting
     static AP_Filesystem *get_singleton(void);
 
