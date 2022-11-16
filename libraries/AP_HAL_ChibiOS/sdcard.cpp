@@ -30,6 +30,7 @@ extern const AP_HAL::HAL& hal;
 
 #if HAL_USE_FATFS
 
+#if HAL_HAVE_USB_CDC_MSD
 static void block_filesys_access()
 {
     AP::FS().block_access();
@@ -39,6 +40,7 @@ static void free_filesys_access()
 {
     AP::FS().free_access();
 }
+#endif
 static FATFS SDC_FS; // FATFS object
 #ifndef HAL_BOOTLOADER_BUILD
 static HAL_Semaphore sem;
