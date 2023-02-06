@@ -963,6 +963,10 @@ class ChibiOSHWDef(object):
             f.write('#define HAL_USE_USB TRUE\n')
             f.write('#define HAL_USE_SERIAL_USB TRUE\n')
             f.write('#define BOARD_OTG2_USES_ULPI\n')
+        if self.get_config('HAL_USE_USB_MSD', required=False):
+            f.write('#define HAL_USE_USB_MSD TRUE\n')
+            f.write('#define HAL_HAVE_USB_CDC_MSD 1\n')
+            self.build_flags.append('USE_USB_MSD=yes')
         if 'ETH1' in self.bytype:
             f.write('// Configure for Ethernet support\n')
             f.write('#define CH_CFG_USE_MAILBOXES                TRUE\n')
