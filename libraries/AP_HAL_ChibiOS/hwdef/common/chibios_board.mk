@@ -184,6 +184,7 @@ ASMSRC = $(ALLASMSRC)
 ASMXSRC = $(ALLXASMSRC)
 
 INCDIR = $(CHIBIOS)/os/license \
+         $(CHIBIOS)/os/various \
          $(ALLINC) $(HWDEF)/common
 
 ifneq ($(CRASHCATCHER),)
