@@ -1180,7 +1180,6 @@ class ChibiOSHWDef(object):
 #define HAL_USE_EMPTY_STORAGE 1
 #ifndef HAL_STORAGE_SIZE
 #define HAL_STORAGE_SIZE 16384
-#define DISABLE_WATCHDOG 1
 #endif
 ''')
             else:
@@ -1228,7 +1227,6 @@ class ChibiOSHWDef(object):
 #ifndef CH_CFG_USE_DYNAMIC
 #define CH_CFG_USE_DYNAMIC FALSE
 #endif
-#define DISABLE_WATCHDOG 1
 ''')
             if not self.env_vars['EXT_FLASH_SIZE_MB'] and not args.signed_fw:
                 f.write('''
