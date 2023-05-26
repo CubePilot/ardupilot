@@ -31,13 +31,16 @@ extern const AP_HAL::HAL& hal;
 #if HAL_USE_FATFS
 
 #if HAL_HAVE_USB_CDC_MSD
+bool write_protected = false;
 static void block_filesys_access()
 {
     AP::FS().block_access();
+    write_protected = true;
 }
 
 static void free_filesys_access()
 {
+    write_protected = false;
     AP::FS().free_access();
 }
 #endif
@@ -196,6 +199,16 @@ bool sdcard_init()
 #endif  // HAL_USE_FATFS
     return false;
 }
+
+#if HAL_USE_SDC
+bool sdc_lld_is_write_protected(SDCDriver *sdcp) {
+#if HAL_HAVE_USB_CDC_MSD
+    return write_protected;
+#else
+    return false;
+#endif
+}
+#endif
 
 /*
   stop sdcard interface (for reboot)
