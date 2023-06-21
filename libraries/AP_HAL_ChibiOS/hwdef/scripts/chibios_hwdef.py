@@ -883,7 +883,7 @@ def write_mcu_config(f):
     else:
         f.write('#define HAL_USE_SDC FALSE\n')
         build_flags.append('USE_FATFS=no')
-        env_vars['DISABLE_SCRIPTING'] = True
+        env_vars['DISABLE_SCRIPTING'] = not get_config('ENABLE_SCRIPTING', default=False)
     if 'OTG1' in bytype:
         f.write('#define STM32_USB_USE_OTG1                  TRUE\n')
         f.write('#define HAL_USE_USB TRUE\n')
