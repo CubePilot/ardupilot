@@ -939,7 +939,8 @@ class chibios(Board):
             '--specs=nosys.specs',
             '-D__USE_CMSIS',
             '-Werror=deprecated-declarations',
-            '-DNDEBUG=1'
+            '-DNDEBUG=1',
+            '-g'
         ]
         if not cfg.options.Werror:
             env.CFLAGS += [
