@@ -24,7 +24,7 @@
 
 #include "AP_Filesystem.h"
 
-#if HAVE_FILESYSTEM_SUPPORT
+#if HAVE_FILESYSTEM_SUPPORT || AP_SCRIPTING_ENABLED
 
 #include "posix_compat.h"
 #include <stdarg.h>
