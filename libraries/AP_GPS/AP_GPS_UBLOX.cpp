@@ -501,6 +501,7 @@ AP_GPS_UBLOX::_verify_rate(uint8_t msg_class, uint8_t msg_id, uint8_t rate) {
         case MSG_MON_SPAN:
             desired_rate = RATE_SPAN;
             config_msg_id = CONFIG_RATE_MON_SPAN;
+            break;
         default:
             return;
         }
