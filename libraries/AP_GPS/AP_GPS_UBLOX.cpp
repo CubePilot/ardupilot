@@ -353,6 +353,11 @@ AP_GPS_UBLOX::_request_next_config(void)
             _next_message--;
         }
         break;
+    case STEP_MON_SPAN:
+        if (!_request_message_rate(CLASS_MON, MSG_MON_SPAN)) {
+            _next_message--;
+        }
+        break;
     case STEP_RAW:
 #if UBLOX_RXM_RAW_LOGGING
         if(gps._raw_data == 0) {
@@ -495,6 +500,9 @@ AP_GPS_UBLOX::_verify_rate(uint8_t msg_class, uint8_t msg_id, uint8_t rate) {
             desired_rate = RATE_HW2;
             config_msg_id = CONFIG_RATE_MON_HW2;
             break;
+        case MSG_MON_SPAN:
+            desired_rate = RATE_SPAN;
+            config_msg_id = CONFIG_RATE_MON_SPAN;
         default:
             return;
         }
@@ -893,6 +901,41 @@ void AP_GPS_UBLOX::log_rxm_rawx(const struct ubx_rxm_rawx &raw)
 }
 #endif // UBLOX_RXM_RAW_LOGGING
 
+void AP_GPS_UBLOX::handle_mon_span()
+{
+    memcpy(&rf_spektrum, &_buffer.mon_span, sizeof(rf_spektrum));
+    rf_spektrum_valid = true;
+}
+
+bool AP_GPS_UBLOX::get_frequency_db(uint32_t frequency, uint32_t &measured_gain, uint32_t &antenna_gain)
+{
+    if (!rf_spektrum_valid) {
+        return false;
+    }
+
+    int8_t rf_block = -1;
+    for (uint8_t i=0; i<rf_spektrum.numRfBlocks; i++) {
+        if ((rf_spektrum.rf[i].center + rf_spektrum.rf[i].span/2 >= frequency) &&
+            (rf_spektrum.rf[i].center - rf_spektrum.rf[i].span/2 <= frequency)) {
+            // frequency is within this block
+            rf_block = i;
+            break;
+        }
+    }
+    if (rf_block == -1) {
+        return false;
+    }
+
+    // find the closest block to the requested frequency within the 256 blocks wide span
+    uint32_t block = (frequency - (rf_spektrum.rf[rf_block].center - rf_spektrum.rf[rf_block].span/2))/(rf_spektrum.rf[rf_block].res);
+    if (block > ARRAY_SIZE(rf_spektrum.rf[rf_block].spectrum)) {
+        return false;
+    }
+    measured_gain = rf_spektrum.rf[rf_block].spectrum[block];
+    antenna_gain = rf_spektrum.rf[rf_block].pga;
+    return true;
+}
+
 void AP_GPS_UBLOX::unexpected_message(void)
 {
     Debug("Unexpected message 0x%02x 0x%02x", (unsigned)_class, (unsigned)_msg_id);
@@ -995,6 +1038,9 @@ AP_GPS_UBLOX::_parse_gps(void)
                     break;
                 case MSG_MON_HW2:
                     _unconfigured_messages &= ~CONFIG_RATE_MON_HW2;
+                    break;
+                case MSG_MON_SPAN:
+                    _unconfigured_messages &= ~CONFIG_RATE_MON_SPAN;
                     break;
                 }
             }
@@ -1305,6 +1351,9 @@ AP_GPS_UBLOX::_parse_gps(void)
                     _unconfigured_messages |= CONFIG_M10;
                 }
             }
+            break;
+        case MSG_MON_SPAN:
+            handle_mon_span();
             break;
         default:
             unexpected_message();
