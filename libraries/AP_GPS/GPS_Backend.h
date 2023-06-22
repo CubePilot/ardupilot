@@ -98,6 +98,8 @@ public:
         return gps.option_set(option);
     }
 
+    virtual bool get_frequency_db(uint32_t frequency, uint32_t &measured_gain, uint32_t &antenna_gain) { return false; }
+
 protected:
     AP_HAL::UARTDriver *port;           ///< UART we are attached to
     AP_GPS &gps;                        ///< access to frontend (for parameters)

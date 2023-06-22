@@ -67,6 +67,8 @@
 
 #define UBLOX_MAX_PORTS 6
 
+#define UBLOX_MAX_MON_SPAN_RF 3
+
 #define RATE_POSLLH 1
 #define RATE_STATUS 1
 #define RATE_SOL 1
@@ -76,6 +78,7 @@
 #define RATE_DOP 1
 #define RATE_HW 5
 #define RATE_HW2 5
+#define RATE_SPAN 1
 #define RATE_TIM_TM2 1
 
 #define CONFIG_RATE_NAV      (1<<0)
@@ -99,12 +102,13 @@
 #define CONFIG_TIM_TM2       (1<<18)
 #define CONFIG_M10           (1<<19)
 #define CONFIG_LAST          (1<<20) // this must always be the last bit
+#define CONFIG_RATE_MON_SPAN (1<<21)
 
 #define CONFIG_REQUIRED_INITIAL (CONFIG_RATE_NAV | CONFIG_RATE_POSLLH | CONFIG_RATE_STATUS | CONFIG_RATE_VELNED)
 
 #define CONFIG_ALL (CONFIG_RATE_NAV | CONFIG_RATE_POSLLH | CONFIG_RATE_STATUS | CONFIG_RATE_SOL | CONFIG_RATE_VELNED \
                     | CONFIG_RATE_DOP | CONFIG_RATE_MON_HW | CONFIG_RATE_MON_HW2 | CONFIG_RATE_RAW | CONFIG_VERSION \
-                    | CONFIG_NAV_SETTINGS | CONFIG_GNSS | CONFIG_SBAS)
+                    | CONFIG_NAV_SETTINGS | CONFIG_GNSS | CONFIG_SBAS | CONFIG_RATE_MON_SPAN)
 
 //Configuration Sub-Sections
 #define SAVE_CFG_IO     (1<<0)
@@ -158,6 +162,8 @@ public:
     // ublox specific healthy checks
     bool is_healthy(void) const override;
     
+    bool get_frequency_db(uint32_t frequency, uint32_t &measured_gain, uint32_t &antenna_gain) override;
+
 private:
     // u-blox UBX protocol essentials
     struct PACKED ubx_header {
@@ -597,6 +603,20 @@ private:
         uint32_t accEst;
     };
 
+    struct PACKED ubx_mon_span {
+        uint8_t version;
+        uint8_t numRfBlocks;
+        uint8_t reserved0[2];
+        struct ubx_mon_span_rf {
+            uint8_t spectrum[256];
+            uint32_t span;
+            uint32_t res;
+            uint32_t center;
+            uint8_t pga;
+            uint8_t reserved1[3];
+        } rf[UBLOX_MAX_MON_SPAN_RF];
+    };
+
     // Receive buffer
     union PACKED {
         DEFINE_BYTE_ARRAY_METHODS
@@ -631,6 +651,7 @@ private:
 #endif
         ubx_ack_ack ack;
         ubx_tim_tm2 tim_tm2;
+        ubx_mon_span mon_span;
     } _buffer;
 
     enum class RELPOSNED {
@@ -681,6 +702,7 @@ private:
         MSG_MON_HW = 0x09,
         MSG_MON_HW2 = 0x0B,
         MSG_MON_VER = 0x04,
+        MSG_MON_SPAN = 0x31,
         MSG_NAV_SVINFO = 0x30,
         MSG_RXM_RAW = 0x10,
         MSG_RXM_RAWX = 0x15,
@@ -738,6 +760,7 @@ private:
         STEP_DOP,
         STEP_MON_HW,
         STEP_MON_HW2,
+        STEP_MON_SPAN,
         STEP_RAW,
         STEP_RAWX,
         STEP_VERSION,
@@ -820,6 +843,7 @@ private:
     void log_tim_tm2(void);
     void log_rxm_raw(const struct ubx_rxm_raw &raw);
     void log_rxm_rawx(const struct ubx_rxm_rawx &raw);
+    void handle_mon_span(void);
 
 #if GPS_MOVING_BASELINE
     // see if we should use uart2 for moving baseline config
@@ -878,6 +902,8 @@ private:
 #endif // GPS_MOVING_BASELINE
 
     static const config_list config_M10[];
+    struct ubx_mon_span rf_spektrum; // span monitor data
+    bool rf_spektrum_valid; // true if rf_spektrum is valid
 };
 
 #endif

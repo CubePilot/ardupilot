@@ -568,6 +568,8 @@ public:
     void clear_RTCMV3();
 #endif // GPS_MOVING_BASELINE
 
+    bool get_frequency_db(uint32_t frequency, uint32_t &measured_gain, uint32_t &antenna_gain);
+
 protected:
 
     // configuration parameters

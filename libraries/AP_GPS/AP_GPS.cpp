@@ -2252,6 +2252,14 @@ bool AP_GPS::gps_yaw_deg(uint8_t instance, float &yaw_deg, float &accuracy_deg, 
     return true;
 }
 
+bool AP_GPS::get_frequency_db(uint32_t frequency, uint32_t &measured_gain, uint32_t &antenna_gain)
+{
+    if (drivers[primary_instance] == nullptr) {
+        return false;
+    }
+    return drivers[primary_instance]->get_frequency_db(frequency, measured_gain, antenna_gain);
+}
+
 namespace AP {
 
 AP_GPS &gps()
