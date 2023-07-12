@@ -1,6 +1,5 @@
 #pragma once
 #include <AP_HAL/AP_HAL.h>
-#if HAL_ENABLE_DRONECAN_DRIVERS
 #include <canard/interface.h>
 #include <dronecan_msgs.h>
 
@@ -56,6 +55,11 @@ public:
     void update_rx_protocol_stats(int16_t res);
 
     uint8_t get_node_id() const override { return canard.node_id; }
+    void set_node_id(uint8_t node_id) { canardSetLocalNodeID(&canard, node_id); }
+
+    uint16_t pool_peak_percent();
+    const dronecan_protocol_Stats& get_protocol_stats() const { return protocol_stats; }
+
 private:
     CanardInstance canard;
     AP_HAL::CANIface* ifaces[HAL_NUM_CAN_IFACES];
@@ -71,4 +75,3 @@ private:
     CanardTxTransfer tx_transfer;
     dronecan_protocol_Stats protocol_stats;
 };
-#endif // HAL_ENABLE_DRONECAN_DRIVERS
