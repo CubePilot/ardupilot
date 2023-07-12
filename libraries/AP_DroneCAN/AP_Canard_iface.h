@@ -1,6 +1,5 @@
 #pragma once
 #include <AP_HAL/AP_HAL.h>
-#if HAL_ENABLE_DRONECAN_DRIVERS
 #include <canard/interface.h>
 #include <dronecan_msgs.h>
 
@@ -67,6 +66,10 @@ public:
 
     // get reference to the semaphore that is held during message receive
     HAL_Semaphore &get_sem_rx(void) { return _sem_rx; }
+    void set_node_id(uint8_t node_id) { canardSetLocalNodeID(&canard, node_id); }
+
+    uint16_t pool_peak_percent();
+    const dronecan_protocol_Stats& get_protocol_stats() const { return protocol_stats; }
 
 private:
     CanardInstance canard;
@@ -86,4 +89,3 @@ private:
     // auxillary 11 bit CANSensor
     CANSensor *aux_11bit_driver;
 };
-#endif // HAL_ENABLE_DRONECAN_DRIVERS

@@ -1,7 +1,6 @@
 #include "AP_Canard_iface.h"
 #include <AP_HAL/AP_HAL.h>
 #include <AP_CANManager/AP_CANManager.h>
-#if HAL_ENABLE_DRONECAN_DRIVERS
 #include <canard/handler_list.h>
 #include <canard/transfer_object.h>
 #include <AP_Math/AP_Math.h>
@@ -20,6 +19,12 @@ DEFINE_HANDLER_LIST_SEMAPHORES();
 
 DEFINE_TRANSFER_OBJECT_HEADS();
 DEFINE_TRANSFER_OBJECT_SEMAPHORES();
+
+#if HAL_ENABLE_DRONECAN_DRIVERS
+#define CAN_LOG(...) AP::can().log_text(__VA_ARGS__)
+#else
+#define CAN_LOG(...) do {} while(0)
+#endif
 
 #if AP_TEST_DRONECAN_DRIVERS
 CanardInterface* CanardInterface::canard_ifaces[] = {nullptr, nullptr, nullptr};
@@ -419,27 +424,27 @@ void CanardInterface::process(uint32_t duration_ms) {
 bool CanardInterface::add_interface(AP_HAL::CANIface *can_iface)
 {
     if (num_ifaces > HAL_NUM_CAN_IFACES) {
-        AP::can().log_text(AP_CANManager::LOG_ERROR, LOG_TAG, "DroneCANIfaceMgr: Num Ifaces Exceeded\n");
+        CAN_LOG(AP_CANManager::LOG_ERROR, LOG_TAG, "DroneCANIfaceMgr: Num Ifaces Exceeded\n");
         return false;
     }
     if (can_iface == nullptr) {
-        AP::can().log_text(AP_CANManager::LOG_ERROR, LOG_TAG, "DroneCANIfaceMgr: Iface Null\n");
+        CAN_LOG(AP_CANManager::LOG_ERROR, LOG_TAG, "DroneCANIfaceMgr: Iface Null\n");
         return false;
     }
     if (ifaces[num_ifaces] != nullptr) {
-        AP::can().log_text(AP_CANManager::LOG_ERROR, LOG_TAG, "DroneCANIfaceMgr: Iface already added\n");
+        CAN_LOG(AP_CANManager::LOG_ERROR, LOG_TAG, "DroneCANIfaceMgr: Iface already added\n");
         return false;
     }
     ifaces[num_ifaces] = can_iface;
     if (ifaces[num_ifaces] == nullptr) {
-        AP::can().log_text(AP_CANManager::LOG_ERROR, LOG_TAG, "DroneCANIfaceMgr: Can't alloc uavcan::iface\n");
+        CAN_LOG(AP_CANManager::LOG_ERROR, LOG_TAG, "DroneCANIfaceMgr: Can't alloc uavcan::iface\n");
         return false;
     }
     if (!can_iface->set_event_handle(&sem_handle)) {
-        AP::can().log_text(AP_CANManager::LOG_ERROR, LOG_TAG, "DroneCANIfaceMgr: Setting event handle failed\n");
+        CAN_LOG(AP_CANManager::LOG_ERROR, LOG_TAG, "DroneCANIfaceMgr: Setting event handle failed\n");
         return false;
     }
-    AP::can().log_text(AP_CANManager::LOG_INFO, LOG_TAG, "DroneCANIfaceMgr: Successfully added interface %d\n", int(num_ifaces));
+    CAN_LOG(AP_CANManager::LOG_INFO, LOG_TAG, "DroneCANIfaceMgr: Successfully added interface %d\n", int(num_ifaces));
     num_ifaces++;
     return true;
 }
@@ -469,4 +474,10 @@ bool CanardInterface::write_aux_frame(AP_HAL::CANFrame &out_frame, const uint32_
     return ret;
 }
 
-#endif // #if HAL_ENABLE_DRONECAN_DRIVERS
+uint16_t CanardInterface::pool_peak_percent()
+{
+    const CanardPoolAllocatorStatistics stats = canardGetPoolAllocatorStatistics(&canard);
+    const uint16_t peak_percent = (uint16_t)(100U * stats.peak_usage_blocks / stats.capacity_blocks);
+    return peak_percent;
+}
+
