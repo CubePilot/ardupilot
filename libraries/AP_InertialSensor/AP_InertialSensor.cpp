@@ -1845,11 +1845,11 @@ void AP_InertialSensor::update(void)
         }
 
         for (uint8_t i=0; i<INS_MAX_INSTANCES; i++) {
-            if (_gyro_healthy[i] && _gyro_error_count[i] > (20 + _gyro_startup_error_count[i]) && have_zero_gyro_error_count) {
+            if (_gyro_healthy[i] && _gyro_error_count[i] > _gyro_startup_error_count[i] && have_zero_gyro_error_count) {
                 // we prefer not to use a gyro that has had errors
                 _gyro_healthy[i] = false;
             }
-            if (_accel_healthy[i] && _accel_error_count[i] > (20 + _accel_startup_error_count[i]) && have_zero_accel_error_count) {
+            if (_accel_healthy[i] && _accel_error_count[i] > _accel_startup_error_count[i] && have_zero_accel_error_count) {
                 // we prefer not to use a accel that has had errors
                 _accel_healthy[i] = false;
             }
