@@ -133,6 +133,7 @@ public:
     const Vector3f     &get_accel(void) const { return get_accel(_primary_accel); }
 
     // multi-device interface
+    bool get_gyro_health_locked(uint8_t instance) { WITH_SEMAPHORE(healthy_sem); return get_gyro_health(instance); }
     bool get_gyro_health(uint8_t instance) const { return (instance<_gyro_count) ? _gyro_healthy[instance] : false; }
     bool get_gyro_health(void) const { return get_gyro_health(_primary_gyro); }
     bool get_gyro_health_all(void) const;
@@ -142,6 +143,7 @@ public:
     bool use_gyro(uint8_t instance) const;
     Gyro_Calibration_Timing gyro_calibration_timing();
 
+    bool get_accel_health_locked(uint8_t instance) { WITH_SEMAPHORE(healthy_sem); return get_accel_health(instance); }
     bool get_accel_health(uint8_t instance) const { return (instance<_accel_count) ? _accel_healthy[instance] : false; }
     bool get_accel_health(void) const { return get_accel_health(_primary_accel); }
     bool get_accel_health_all(void) const;
@@ -728,6 +730,7 @@ private:
     uint32_t _startup_ms;
 
     uint8_t imu_kill_mask;
+    HAL_Semaphore healthy_sem;
 
 #if HAL_INS_TEMPERATURE_CAL_ENABLE
 public:

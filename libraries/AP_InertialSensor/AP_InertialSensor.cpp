@@ -1794,7 +1794,8 @@ void AP_InertialSensor::update(void)
     // during initialisation update() may be called without
     // wait_for_sample(), and a wait is implied
     wait_for_sample();
-
+    {
+        WITH_SEMAPHORE(healthy_sem);
         for (uint8_t i=0; i<INS_MAX_INSTANCES; i++) {
             // mark sensors unhealthy and let update() in each backend
             // mark them healthy via _publish_gyro() and
@@ -1867,7 +1868,7 @@ void AP_InertialSensor::update(void)
                 break;
             }
         }
-
+    }
     _last_update_usec = AP_HAL::micros();
     
     _have_sample = false;
