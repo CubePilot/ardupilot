@@ -83,6 +83,11 @@ extern const AP_HAL::HAL& hal;
 #define LOCAL_BACKEND backends[0]
 #define BACKEND_IDX(backend) (&(backend) - &backends[0])
 
+AP_Filesystem::AP_Filesystem()
+{
+    _singleton = this;
+}
+
 /*
   find backend by path
  */
@@ -300,6 +305,9 @@ AP_Filesystem_Backend::FormatStatus AP_Filesystem::get_format_status(void) const
     return LOCAL_BACKEND.fs.get_format_status();
 }
 #endif
+
+// singleton instance
+AP_Filesystem *AP_Filesystem::_singleton;
 
 namespace AP
 {

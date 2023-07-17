@@ -72,7 +72,10 @@ private:
     };
 
 public:
-    AP_Filesystem() {}
+    AP_Filesystem();
+
+    // get singleton instance
+    static AP_Filesystem *get_singleton() { return _singleton; }
 
     // functions that closely match the equivalent posix calls
     int open(const char *fname, int flags, bool allow_absolute_paths = false);
@@ -125,6 +128,8 @@ private:
         AP_Filesystem_Backend &fs;
     };
     static const struct Backend backends[];
+
+    static AP_Filesystem *_singleton;
 
     /*
       find backend by path
