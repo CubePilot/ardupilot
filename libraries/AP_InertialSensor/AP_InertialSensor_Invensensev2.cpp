@@ -35,8 +35,9 @@ extern const AP_HAL::HAL& hal;
 #endif
 
 #if CONFIG_HAL_BOARD == HAL_BOARD_CHIBIOS
+#include <AP_Logger/AP_Logger.h>
 // hal.console can be accessed from bus threads on ChibiOS
-#define debug(fmt, args ...)  do {hal.console->printf("INV2: " fmt "\n", ## args); } while(0)
+#define debug(fmt, args ...)  do {AP::logger().Write_MessageF("INV2: " fmt "\n", ## args); } while(0)
 #elif CONFIG_HAL_BOARD == HAL_BOARD_ESP32 
 // esp32 commonly has timing issues
 #define debug(fmt, args ...)  do {timing_printf("INV2: " fmt "\n", ## args); } while(0)
