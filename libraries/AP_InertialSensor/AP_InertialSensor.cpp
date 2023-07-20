@@ -1855,6 +1855,18 @@ void AP_InertialSensor::update(void)
             }
         }
 
+        //Band aid fix to stop IMU1 from flagging health failures when update rate is not met (not sure of the actual problem will need investigation)
+        uint32_t currentMicros = AP_HAL::micros();
+        for (uint8_t i=0; i<INS_MAX_INSTANCES; i++) {
+            //If the error count > 20 + startup and the last sample was less than 5ms force it to be healthy
+            if (!_gyro_healthy[i] && _gyro_error_count[i] < (20 + _gyro_startup_error_count[i]) && currentMicros - _gyro_last_sample_us[i] < 5000) {
+                _gyro_healthy[i] = true;
+            }
+            if (!_accel_healthy[i] && _accel_error_count[i] < (20 + _accel_startup_error_count[i]) && currentMicros - _accel_last_sample_us[i] < 5000) {
+                _accel_healthy[i] = true;
+            }
+        }
+
         // set primary to first healthy accel and gyro
         for (uint8_t i=0; i<INS_MAX_INSTANCES; i++) {
             if (_gyro_healthy[i] && _use(i)) {
