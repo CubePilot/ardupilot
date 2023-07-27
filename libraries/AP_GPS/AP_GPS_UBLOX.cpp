@@ -375,6 +375,17 @@ AP_GPS_UBLOX::_request_next_config(void)
         _unconfigured_messages & = ~CONFIG_RATE_RAW;
 #endif
         break;
+    case STEP_SFRBX:
+#if UBLOX_RXM_RAW_LOGGING
+        if(gps._raw_data == 0) {
+            _unconfigured_messages &= ~CONFIG_RATE_SFRB;
+        } else if(!_request_message_rate(CLASS_RXM, MSG_RXM_SFRBX)) {
+            _next_message--;
+        }
+#else
+        _unconfigured_messages & = ~CONFIG_RATE_SFRB;
+#endif
+        break;
     case STEP_VERSION:
         if(!_have_version && !hal.util->get_soft_armed()) {
             _request_version();
@@ -509,6 +520,10 @@ AP_GPS_UBLOX::_verify_rate(uint8_t msg_class, uint8_t msg_id, uint8_t rate) {
         case MSG_RXM_RAWX:
             desired_rate = gps._raw_data;
             config_msg_id = CONFIG_RATE_RAW;
+            break;
+        case MSG_RXM_SFRBX:
+            desired_rate = gps._raw_data;
+            config_msg_id = CONFIG_RATE_SFRB;
             break;
         default:
             return;
@@ -2026,7 +2041,8 @@ static const char *reasons[] = {"navigation rate",
                                 "Time mode settings",
                                 "RTK MB",
                                 "TIM TM2",
-                                "M10"};
+                                "M10",
+                                "sfrb rate"};
 
 static_assert((1 << ARRAY_SIZE(reasons)) == CONFIG_LAST, "UBLOX: Missing configuration description");
 

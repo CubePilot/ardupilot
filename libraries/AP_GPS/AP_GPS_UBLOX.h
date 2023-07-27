@@ -98,12 +98,13 @@
 #define CONFIG_RTK_MOVBASE   (1<<17)
 #define CONFIG_TIM_TM2       (1<<18)
 #define CONFIG_M10           (1<<19)
-#define CONFIG_LAST          (1<<20) // this must always be the last bit
+#define CONFIG_RATE_SFRB     (1<<20)
+#define CONFIG_LAST          (1<<21) // this must always be the last bit
 
 #define CONFIG_REQUIRED_INITIAL (CONFIG_RATE_NAV | CONFIG_RATE_POSLLH | CONFIG_RATE_STATUS | CONFIG_RATE_VELNED)
 
 #define CONFIG_ALL (CONFIG_RATE_NAV | CONFIG_RATE_POSLLH | CONFIG_RATE_STATUS | CONFIG_RATE_SOL | CONFIG_RATE_VELNED \
-                    | CONFIG_RATE_DOP | CONFIG_RATE_MON_HW | CONFIG_RATE_MON_HW2 | CONFIG_RATE_RAW | CONFIG_VERSION \
+                    | CONFIG_RATE_DOP | CONFIG_RATE_MON_HW | CONFIG_RATE_MON_HW2 | CONFIG_RATE_RAW | CONFIG_RATE_SFRB | CONFIG_VERSION \
                     | CONFIG_NAV_SETTINGS | CONFIG_GNSS | CONFIG_SBAS)
 
 //Configuration Sub-Sections
@@ -551,6 +552,7 @@ private:
             uint8_t lli;
         } svinfo[UBLOX_MAX_RXM_RAW_SATS];
     };
+
     struct PACKED ubx_rxm_rawx {
         double rcvTow;
         uint16_t week;
@@ -694,6 +696,7 @@ private:
         MSG_NAV_SVINFO = 0x30,
         MSG_RXM_RAW = 0x10,
         MSG_RXM_RAWX = 0x15,
+        MSG_RXM_SFRBX = 0x13,
         MSG_TIM_TM2 = 0x03
     };
     enum ubx_gnss_identifier {
@@ -750,6 +753,7 @@ private:
         STEP_MON_HW2,
         STEP_RAW,
         STEP_RAWX,
+        STEP_SFRBX,
         STEP_VERSION,
         STEP_RTK_MOVBASE, // setup moving baseline
         STEP_TIM_TM2,
