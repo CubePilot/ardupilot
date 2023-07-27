@@ -1158,7 +1158,7 @@ class ChibiOSHWDef(object):
 
         if not self.mcu_series.startswith("STM32F1") and not args.bootloader:
             self.env_vars['CPU_FLAGS'].append('-u_printf_float')
-            build_info['ENV_UDEFS'] = "-DCHPRINTF_USE_FLOAT=1"
+            build_info['ENV_UDEFS'] = "\"-DCHPRINTF_USE_FLOAT=1 -DCHSCANF_USE_FLOAT=1\""
 
         # setup build variables
         for v in build_info.keys():

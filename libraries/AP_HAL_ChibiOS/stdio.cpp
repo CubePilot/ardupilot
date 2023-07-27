@@ -26,6 +26,7 @@
 #include <string.h>
 #include <hal.h>
 #include <chprintf.h>
+#include <chscanf.h>
 #include <ctype.h>
 #include "hwdef/common/stdio.h"
 #include <AP_HAL/AP_HAL.h>
@@ -139,6 +140,18 @@ int __wrap_fprintf(void *f, const char *fmt, ...)
    (void)fmt;
    return 0;
 #endif
+}
+
+int __wrap_sscanf(const char *str, const char *fmt, ...)
+{
+    va_list arg;
+    int done;
+
+    va_start (arg, fmt);
+    done =  chvsnscanf((char*)str, strlen(str)+1, fmt, arg);
+    va_end (arg);
+
+    return done;
 }
 
 //just a stub for scanf
