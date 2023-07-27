@@ -947,7 +947,7 @@ class chibios(Board):
         env.CFLAGS += cfg.env.CPU_FLAGS + [
             '-Wlogical-op',
             '-Wframe-larger-than=1300',
-            '-fsingle-precision-constant',
+            # '-fsingle-precision-constant',
             '-Wno-attributes',
             '-fno-exceptions',
             '-Wall',
