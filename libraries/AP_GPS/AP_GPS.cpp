@@ -1044,16 +1044,16 @@ void AP_GPS::update_instance(uint8_t instance)
     }
 #endif
 
-#ifndef HAL_BUILD_AP_PERIPH
+// #ifndef HAL_BUILD_AP_PERIPH
     if (state[instance].status >= GPS_OK_FIX_3D) {
         const uint64_t now = time_epoch_usec(instance);
         if (now != 0) {
             AP::rtc().set_utc_usec(now, AP_RTC::SOURCE_GPS);
         }
     }
-#else
+// #else
     (void)data_should_be_logged;
-#endif
+// #endif
 }
 
 
