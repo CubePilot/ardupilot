@@ -620,7 +620,6 @@ protected:
         UBX_Use115200     = (1U << 2U),
         UAVCAN_MBUseDedicatedBus  = (1 << 3U),
         HeightEllipsoid   = (1U << 4),
-        UBX_Use460800     = (1U << 5U),
     };
 
     // check if an option is set
