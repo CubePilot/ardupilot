@@ -1421,6 +1421,16 @@ function ins:get_gyro_health(instance) end
 ---@return boolean
 function ins:get_accel_health(instance) end
 
+-- Get the value of a specific gyrometer
+---@param instance integer -- the 0-based index of the gyrometer instance to return.
+---@return Vector3f_ud
+function ins:get_gyro(instance) end
+
+-- Get the value of a specific accelerometer
+---@param instance integer -- the 0-based index of the accelerometer instance to return.
+---@return Vector3f_ud
+function ins:get_accel(instance) end
+
 -- desc
 ---@class Motors_dynamic
 Motors_dynamic = {}
