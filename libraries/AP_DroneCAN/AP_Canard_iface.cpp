@@ -101,7 +101,8 @@ bool CanardInterface::broadcast(const Canard::Transfer &bcast_transfer) {
 #endif
     };
     // do canard broadcast
-    int16_t ret = canardBroadcastObj(&canard, &tx_transfer);
+    volatile int16_t ret;
+    ret = canardBroadcastObj(&canard, &tx_transfer);
 #if AP_TEST_DRONECAN_DRIVERS
     if (this == &test_iface) {
         test_iface_sem.give();
@@ -219,6 +220,18 @@ void CanardInterface::processTx(bool raw_commands_only = false) {
         if (txq == nullptr) {
             return;
         }
+        const auto *stats = ifaces[iface]->get_statistics();
+        bool iface_down = true;
+        if (stats == nullptr || (AP_HAL::micros64() - stats->last_transmit_us) < 200000UL) {
+            /*
+            We were not able to queue the frame for
+            sending. Only mark the send as failing if the
+            interface is active. We consider an interface as
+            active if it has had a successful transmit in the
+            last 500 milliseconds
+            */
+            iface_down = false;
+        } 
         // scan through list of pending transfers
         while (true) {
             auto txf = &txq->frame;
@@ -245,15 +258,22 @@ void CanardInterface::processTx(bool raw_commands_only = false) {
             if (!write) {
                 // if there is no space then we need to start from the
                 // top of the queue, so wait for the next loop
-                break;
-            }
-            if ((txf->iface_mask & (1U<<iface)) && (AP_HAL::micros64() < txf->deadline_usec)) {
+                if (!iface_down) {
+                    break;
+                } else {
+                    txf->iface_mask &= ~(1U<<iface);
+                }
+            } else if ((txf->iface_mask & (1U<<iface)) && (AP_HAL::micros64() < txf->deadline_usec)) {
                 // try sending to interfaces, clearing the mask if we succeed
                 if (ifaces[iface]->send(txmsg, txf->deadline_usec, 0) > 0) {
                     txf->iface_mask &= ~(1U<<iface);
                 } else {
                     // if we fail to send then we try sending on next interface
-                    break;
+                    if (!iface_down) {
+                        break;
+                    } else {
+                        txf->iface_mask &= ~(1U<<iface);
+                    }
                 }
             }
             // look at next transfer
