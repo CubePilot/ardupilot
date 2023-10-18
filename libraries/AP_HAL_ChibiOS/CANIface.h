@@ -115,6 +115,11 @@ class ChibiOS::CANIface : public AP_HAL::CANIface
 #endif
     const uint8_t self_index_;
 
+    // track tx timestamps
+    uint32_t tracked_tx_ts_mask;
+    uint32_t tracked_tx_ts_value;
+    uint64_t tracked_tx_timestamp_us;
+
     bool computeTimings(uint32_t target_bitrate, Timings& out_timings);
 
     void setupMessageRam(void);
@@ -249,6 +254,17 @@ protected:
 
     int8_t get_iface_num(void) const override {
         return self_index_;
+    }
+
+    // set mask and value on packet id to track tx timestamp for
+    void set_track_tx_timestamp(uint32_t mask, uint32_t value) override {
+        tracked_tx_ts_mask = mask;
+        tracked_tx_ts_value = value;
+    }
+
+    // get timestamp of last packet sent with matching mask and value
+    uint64_t get_tracked_tx_timestamp() override {
+        return tracked_tx_timestamp_us;
     }
 };
 #endif //HAL_NUM_CAN_IFACES
