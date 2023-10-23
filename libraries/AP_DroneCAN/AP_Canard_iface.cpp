@@ -98,7 +98,7 @@ bool CanardInterface::broadcast(const Canard::Transfer &bcast_transfer) {
 #endif
         .deadline_usec = AP_HAL::micros64() + (bcast_transfer.timeout_ms * 1000),
 #if CANARD_MULTI_IFACE
-        .iface_mask = uint8_t((1<<num_ifaces) - 1),
+        .iface_mask = bcast_transfer.iface_mask,
 #endif
     };
     // do canard broadcast
@@ -135,7 +135,7 @@ bool CanardInterface::request(uint8_t destination_node_id, const Canard::Transfe
 #endif
         .deadline_usec = AP_HAL::micros64() + (req_transfer.timeout_ms * 1000),
 #if CANARD_MULTI_IFACE
-        .iface_mask = uint8_t((1<<num_ifaces) - 1),
+        .iface_mask = req_transfer.iface_mask,
 #endif
     };
     // do canard request
@@ -167,7 +167,7 @@ bool CanardInterface::respond(uint8_t destination_node_id, const Canard::Transfe
 #endif
         .deadline_usec = AP_HAL::micros64() + (res_transfer.timeout_ms * 1000),
 #if CANARD_MULTI_IFACE
-        .iface_mask = uint8_t((1<<num_ifaces) - 1),
+        .iface_mask = res_transfer.iface_mask,
 #endif
     };
     // do canard respond
