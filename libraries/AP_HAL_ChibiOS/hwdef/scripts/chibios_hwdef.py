@@ -2364,6 +2364,12 @@ INCLUDE common.ld
                                        "Tools",
                                        "bootloaders",
                                        bootloader_filename)
+        if not os.path.exists(bootloader_path):
+            # GNSSPeriph location
+            rootdir = os.path.relpath(os.path.join(this_dir, "../../../../../.."))
+            bootloader_path = os.path.join(rootdir,
+                                            "bootloaders",
+                                            bootloader_filename)
         return bootloader_path
 
     def embed_bootloader(self, f):
