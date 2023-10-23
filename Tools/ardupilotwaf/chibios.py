@@ -444,6 +444,8 @@ def chibios_firmware(self):
     if self.bld.env.USE_BOOTLOADER_FROM_BOARD:
         bootloader_board = self.bld.env.USE_BOOTLOADER_FROM_BOARD
     bootloader_bin = self.bld.srcnode.make_node("Tools/bootloaders/%s_bl.bin" % bootloader_board)
+    if not os.path.exists(bootloader_bin.abspath()):
+        bootloader_bin = self.bld.srcnode.make_node("../bootloaders/%s_bl.bin" % bootloader_board)
     if self.bld.env.HAVE_INTEL_HEX:
         if os.path.exists(bootloader_bin.abspath()):
             if int(self.bld.env.FLASH_RESERVE_START_KB) > 0:
