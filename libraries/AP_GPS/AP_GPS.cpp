@@ -495,6 +495,15 @@ uint64_t AP_GPS::time_epoch_usec(uint8_t instance) const
 }
 
 /**
+ * get last corrected gps time in microseconds
+*/
+uint64_t AP_GPS::last_corrected_gps_time_usec(uint8_t instance) const
+{
+    const GPS_State &istate = state[instance];
+    return istate.last_corrected_gps_time_us;
+}
+
+/**
    calculate last message time since the unix epoch in microseconds
  */
 uint64_t AP_GPS::last_message_epoch_usec(uint8_t instance) const
