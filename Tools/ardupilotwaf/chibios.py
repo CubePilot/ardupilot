@@ -409,6 +409,8 @@ def chibios_firmware(self):
     cleanup_task.set_run_after(generate_apj_task)
 
     bootloader_bin = self.bld.srcnode.make_node("Tools/bootloaders/%s_bl.bin" % self.env.BOARD)
+    if not os.path.exists(bootloader_bin.abspath()):
+        bootloader_bin = self.bld.srcnode.make_node("../bootloaders/%s_bl.bin" % self.env.BOARD)
     if self.bld.env.HAVE_INTEL_HEX:
         if os.path.exists(bootloader_bin.abspath()):
             hex_target = self.bld.bldnode.find_or_declare('bin/' + link_output.change_ext('.hex').name)
