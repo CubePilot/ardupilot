@@ -403,11 +403,12 @@ void AP_BoardConfig::init()
         }
         slowdown++;
         hal.scheduler->delay(5);
+        AP_HAL::panic("SDCard failed to mount\n");
     } while (slowdown < max_slowdown);
     if (slowdown < max_slowdown) {
         _sdcard_slowdown.set(slowdown);
     } else {
-        printf("SDCard failed to start\n");
+        AP_HAL::panic("SDCard failed to start\n");
     }
 #endif
 }
