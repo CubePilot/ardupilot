@@ -371,13 +371,13 @@ bool AP_Arming::ins_checks(bool report)
         }
 
         // check all accelerometers point in roughly same direction
-        if (!ins.accels_consistent(accel_error_threshold)) {
+        if (!ins.accels_consistent(accel_error_threshold, 10)) {
             check_failed(ARMING_CHECK_INS, report, "Accels inconsistent");
             return false;
         }
 
         // check all gyros are giving consistent readings
-        if (!ins.gyros_consistent()) {
+        if (!ins.gyros_consistent(5, 10)) {
             check_failed(ARMING_CHECK_INS, report, "Gyros inconsistent");
             return false;
         }
