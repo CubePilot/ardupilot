@@ -1412,8 +1412,10 @@ ins = {}
 function ins:get_temperature(instance) end
 
 -- Check if the gyrometers are consistent
+---@param threshold integer -- the allowed threshold in degrees per second
+---@param consistency_seconds integer -- how many seconds to require consistent data for
 ---@return boolean
-function ins:gyros_consistent() end
+function ins:gyros_consistent(threshold, consistency_seconds) end
 
 -- Check if a specific gyrometer sensor is healthy
 ---@param instance integer -- the 0-based index of the gyrometer instance to return.
@@ -1422,8 +1424,9 @@ function ins:get_gyro_health(instance) end
 
 -- Check if the accelerometers are consistent
 ---@param threshold float -- the threshold allowed before returning false
+---@param consistency_seconds integer -- how many seconds to require consistent data for
 ---@return boolean
-function ins:accels_consistent(threshold) end
+function ins:accels_consistent(threshold, consistency_seconds) end
 
 -- Check if a specific accelerometer sensor is healthy
 ---@param instance integer -- the 0-based index of the accelerometer instance to return.
