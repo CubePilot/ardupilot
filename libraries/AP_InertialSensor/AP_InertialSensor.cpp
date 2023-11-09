@@ -1419,6 +1419,45 @@ bool AP_InertialSensor::get_gyro_health_all(void) const
     return (get_gyro_count() > 0);
 }
 
+bool AP_InertialSensor::gyros_consistent()
+{
+    const uint8_t gyro_count = get_gyro_count();
+    if (gyro_count <= 1) {
+        return true;
+    }
+
+    const Vector3f &prime_gyro_vec = get_gyro();
+    const uint32_t now = AP_HAL::millis();
+    for(uint8_t i=0; i<gyro_count; i++) {
+        if (!use_gyro(i)) {
+            continue;
+        }
+        // get next gyro vector
+        const Vector3f &gyro_vec = get_gyro(i);
+        const Vector3f vec_diff = gyro_vec - prime_gyro_vec;
+        // allow for up to 5 degrees/s difference
+        if (vec_diff.length() > radians(5)) {
+            // this sensor disagrees with the primary sensor, so
+            // gyros are inconsistent:
+            last_gyro_pass_ms = 0;
+            return false;
+        }
+    }
+
+    // we didn't return false in the loop above, so sensors are
+    // consistent right now:
+    if (last_gyro_pass_ms == 0) {
+        last_gyro_pass_ms = now;
+    }
+
+    // must pass for at least 10 seconds before we're considered consistent:
+    if (now - last_gyro_pass_ms < 10000) {
+        return false;
+    }
+
+    return true;
+}
+
 // gyro_calibration_ok_all - returns true if all gyros were calibrated successfully
 bool AP_InertialSensor::gyro_calibrated_ok_all() const
 {
@@ -1456,6 +1495,61 @@ bool AP_InertialSensor::get_accel_health_all(void) const
     }
     // return true if we have at least one accel
     return (get_accel_count() > 0);
+}
+
+bool AP_InertialSensor::accels_consistent(float accel_error_threshold)
+{
+    const uint8_t accel_count = get_accel_count();
+    if (accel_count <= 1) {
+        return true;
+    }
+
+    const Vector3f &prime_accel_vec = get_accel();
+    const uint32_t now = AP_HAL::millis();
+    for(uint8_t i=0; i<accel_count; i++) {
+        if (!use_accel(i)) {
+            continue;
+        }
+        // get next accel vector
+        const Vector3f &accel_vec = get_accel(i);
+        Vector3f vec_diff = accel_vec - prime_accel_vec;
+        // allow for user-defined difference, typically 0.75 m/s/s. Has to pass in last 10 seconds
+        float threshold = accel_error_threshold;
+        if (i >= 2) {
+            /*
+              we allow for a higher threshold for IMU3 as it
+              runs at a different temperature to IMU1/IMU2,
+              and is not used for accel data in the EKF
+            */
+            threshold *= 3;
+        }
+
+        // EKF is less sensitive to Z-axis error
+        vec_diff.z *= 0.5f;
+
+        if (vec_diff.length() > threshold) {
+            // this sensor disagrees with the primary sensor, so
+            // accels are inconsistent:
+
+
+            
+            last_accel_pass_ms = 0;
+            return false;
+        }
+    }
+
+    if (last_accel_pass_ms == 0) {
+        // we didn't return false in the loop above, so sensors are
+        // consistent right now:
+        last_accel_pass_ms = now;
+    }
+
+    // must pass for at least 10 seconds before we're considered consistent:
+    if (now - last_accel_pass_ms < 10000) {
+        return false;
+    }
+
+    return true;
 }
 
 #if HAL_GCS_ENABLED
