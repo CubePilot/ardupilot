@@ -1419,8 +1419,9 @@ bool AP_InertialSensor::get_gyro_health_all(void) const
     return (get_gyro_count() > 0);
 }
 
-bool AP_InertialSensor::gyros_consistent()
+bool AP_InertialSensor::gyros_consistent(uint8_t threshold, uint8_t consistent_time_sec)
 {
+     
     const uint8_t gyro_count = get_gyro_count();
     if (gyro_count <= 1) {
         return true;
@@ -1436,7 +1437,7 @@ bool AP_InertialSensor::gyros_consistent()
         const Vector3f &gyro_vec = get_gyro(i);
         const Vector3f vec_diff = gyro_vec - prime_gyro_vec;
         // allow for up to 5 degrees/s difference
-        if (vec_diff.length() > radians(5)) {
+        if (vec_diff.length() > radians(threshold)) {
             // this sensor disagrees with the primary sensor, so
             // gyros are inconsistent:
             last_gyro_pass_ms = 0;
@@ -1450,8 +1451,8 @@ bool AP_InertialSensor::gyros_consistent()
         last_gyro_pass_ms = now;
     }
 
-    // must pass for at least 10 seconds before we're considered consistent:
-    if (now - last_gyro_pass_ms < 10000) {
+    // must pass for at least consistent_time_sec seconds before we're considered consistent:
+    if (now - last_gyro_pass_ms < consistent_time_sec * 1000) {
         return false;
     }
 
@@ -1497,7 +1498,7 @@ bool AP_InertialSensor::get_accel_health_all(void) const
     return (get_accel_count() > 0);
 }
 
-bool AP_InertialSensor::accels_consistent(float accel_error_threshold)
+bool AP_InertialSensor::accels_consistent(float accel_error_threshold, uint8_t consistent_time_sec)
 {
     const uint8_t accel_count = get_accel_count();
     if (accel_count <= 1) {
@@ -1544,8 +1545,8 @@ bool AP_InertialSensor::accels_consistent(float accel_error_threshold)
         last_accel_pass_ms = now;
     }
 
-    // must pass for at least 10 seconds before we're considered consistent:
-    if (now - last_accel_pass_ms < 10000) {
+    // must pass for at least consistent_time_sec seconds before we're considered consistent:
+    if (now - last_accel_pass_ms < consistent_time_sec * 1000) {
         return false;
     }
 
