@@ -580,7 +580,9 @@ singleton AP_InertialSensor depends AP_INERTIALSENSOR_ENABLED
 singleton AP_InertialSensor rename ins
 singleton AP_InertialSensor method get_temperature float uint8_t 0 INS_MAX_INSTANCES
 singleton AP_InertialSensor method get_gyro_health boolean uint8_t'skip_check
+singleton AP_InertialSensor method accels_consistent boolean float'skip_check
 singleton AP_InertialSensor method get_accel_health boolean uint8_t'skip_check
+singleton AP_InertialSensor method gyros_consistent boolean
 singleton AP_InertialSensor method get_gyro_health_locked boolean uint8_t'skip_check
 singleton AP_InertialSensor method get_accel_health_locked boolean uint8_t'skip_check
 singleton AP_InertialSensor method get_gyro Vector3f uint8_t'skip_check
