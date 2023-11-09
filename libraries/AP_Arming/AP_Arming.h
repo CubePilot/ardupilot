@@ -164,8 +164,6 @@ protected:
 
     // internal members
     bool                    armed;
-    uint32_t                last_accel_pass_ms;
-    uint32_t                last_gyro_pass_ms;
 
     virtual bool barometer_checks(bool report);
 
@@ -260,11 +258,6 @@ protected:
 private:
 
     static AP_Arming *_singleton;
-
-#if AP_INERTIALSENSOR_ENABLED
-    bool ins_accels_consistent(const class AP_InertialSensor &ins);
-    bool ins_gyros_consistent(const class AP_InertialSensor &ins);
-#endif
 
     // check if we should keep logging after disarming
     void check_forced_logging(const AP_Arming::Method method);

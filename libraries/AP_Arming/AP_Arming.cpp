@@ -342,101 +342,11 @@ bool AP_Arming::logging_checks(bool report)
 }
 
 #if AP_INERTIALSENSOR_ENABLED
-bool AP_Arming::ins_accels_consistent(const AP_InertialSensor &ins)
-{
-    const uint8_t accel_count = ins.get_accel_count();
-    if (accel_count <= 1) {
-        return true;
-    }
-
-    const Vector3f &prime_accel_vec = ins.get_accel();
-    const uint32_t now = AP_HAL::millis();
-    for(uint8_t i=0; i<accel_count; i++) {
-        if (!ins.use_accel(i)) {
-            continue;
-        }
-        // get next accel vector
-        const Vector3f &accel_vec = ins.get_accel(i);
-        Vector3f vec_diff = accel_vec - prime_accel_vec;
-        // allow for user-defined difference, typically 0.75 m/s/s. Has to pass in last 10 seconds
-        float threshold = accel_error_threshold;
-        if (i >= 2) {
-            /*
-              we allow for a higher threshold for IMU3 as it
-              runs at a different temperature to IMU1/IMU2,
-              and is not used for accel data in the EKF
-            */
-            threshold *= 3;
-        }
-
-        // EKF is less sensitive to Z-axis error
-        vec_diff.z *= 0.5f;
-
-        if (vec_diff.length() > threshold) {
-            // this sensor disagrees with the primary sensor, so
-            // accels are inconsistent:
-            last_accel_pass_ms = 0;
-            return false;
-        }
-    }
-
-    if (last_accel_pass_ms == 0) {
-        // we didn't return false in the loop above, so sensors are
-        // consistent right now:
-        last_accel_pass_ms = now;
-    }
-
-    // must pass for at least 10 seconds before we're considered consistent:
-    if (now - last_accel_pass_ms < 10000) {
-        return false;
-    }
-
-    return true;
-}
-
-bool AP_Arming::ins_gyros_consistent(const AP_InertialSensor &ins)
-{
-    const uint8_t gyro_count = ins.get_gyro_count();
-    if (gyro_count <= 1) {
-        return true;
-    }
-
-    const Vector3f &prime_gyro_vec = ins.get_gyro();
-    const uint32_t now = AP_HAL::millis();
-    for(uint8_t i=0; i<gyro_count; i++) {
-        if (!ins.use_gyro(i)) {
-            continue;
-        }
-        // get next gyro vector
-        const Vector3f &gyro_vec = ins.get_gyro(i);
-        const Vector3f vec_diff = gyro_vec - prime_gyro_vec;
-        // allow for up to 5 degrees/s difference
-        if (vec_diff.length() > radians(5)) {
-            // this sensor disagrees with the primary sensor, so
-            // gyros are inconsistent:
-            last_gyro_pass_ms = 0;
-            return false;
-        }
-    }
-
-    // we didn't return false in the loop above, so sensors are
-    // consistent right now:
-    if (last_gyro_pass_ms == 0) {
-        last_gyro_pass_ms = now;
-    }
-
-    // must pass for at least 10 seconds before we're considered consistent:
-    if (now - last_gyro_pass_ms < 10000) {
-        return false;
-    }
-
-    return true;
-}
 
 bool AP_Arming::ins_checks(bool report)
 {
     if (check_enabled(ARMING_CHECK_INS)) {
-        const AP_InertialSensor &ins = AP::ins();
+        AP_InertialSensor &ins = AP::ins();
         if (!ins.get_gyro_health_all()) {
             check_failed(ARMING_CHECK_INS, report, "Gyros not healthy");
             return false;
@@ -461,13 +371,13 @@ bool AP_Arming::ins_checks(bool report)
         }
 
         // check all accelerometers point in roughly same direction
-        if (!ins_accels_consistent(ins)) {
+        if (!ins.accels_consistent(accel_error_threshold)) {
             check_failed(ARMING_CHECK_INS, report, "Accels inconsistent");
             return false;
         }
 
         // check all gyros are giving consistent readings
-        if (!ins_gyros_consistent(ins)) {
+        if (!ins.gyros_consistent()) {
             check_failed(ARMING_CHECK_INS, report, "Gyros inconsistent");
             return false;
         }
