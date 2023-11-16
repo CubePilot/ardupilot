@@ -681,6 +681,13 @@ const AP_Param::GroupInfo AP_InertialSensor::var_info[] = {
     // @User: Advanced
     AP_GROUPINFO("_RAW_LOG_OPT", 56, AP_InertialSensor, raw_logging_options, 0),
 
+    // @Param: DET_FAIL
+    // @DisplayName: Sensor failed to be detected
+    // @Description: Sensor failed to be detected
+    // @Values: 0:NoFailure,1:Failure
+    // @User: Advanced
+    AP_GROUPINFO("_DET_FAIL", 57, AP_InertialSensor, _det_failed, 0),
+
     /*
       NOTE: parameter indexes have gaps above. When adding new
       parameters check for conflicts carefully
@@ -1301,6 +1308,7 @@ AP_InertialSensor::detect_backends(void)
         #else
         DEV_PRINTF("INS: unable to initialise driver\n");
         GCS_SEND_TEXT(MAV_SEVERITY_DEBUG, "INS: unable to initialise driver");
+        _det_failed.set_and_save(1);
         AP_BoardConfig::config_error("INS: unable to initialise driver");
         #endif
     }

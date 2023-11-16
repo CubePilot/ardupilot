@@ -637,7 +637,10 @@ private:
 
     // control enable of detected sensors
     AP_Int8     _enable_mask;
-    
+
+    // check if detection failed in previous boots
+    AP_Int8 _det_failed;
+
     // board orientation from AHRS
     enum Rotation _board_orientation;
 
