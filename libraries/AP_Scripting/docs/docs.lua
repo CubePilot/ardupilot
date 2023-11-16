@@ -1443,6 +1443,10 @@ function ins:get_gyro(instance) end
 ---@return Vector3f_ud
 function ins:get_accel(instance) end
 
+-- Get if the INS is currently calibrating
+---@return boolean
+function ins:calibrating() end
+
 -- desc
 ---@class Motors_dynamic
 Motors_dynamic = {}
