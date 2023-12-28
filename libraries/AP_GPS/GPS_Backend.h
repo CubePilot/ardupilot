@@ -117,6 +117,8 @@ public:
         return gps.option_set(option);
     }
 
+    uint64_t get_last_pps_time_us() const { return _last_pps_time_us; }
+
 protected:
     AP_HAL::UARTDriver *port;           ///< UART we are attached to
     AP_GPS &gps;                        ///< access to frontend (for parameters)

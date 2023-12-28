@@ -515,6 +515,13 @@ uint64_t AP_GPS::last_message_epoch_usec(uint8_t instance) const
     return istate_time_to_epoch_ms(istate.time_week, drivers[instance]->get_last_itow_ms()) * 1000ULL;
 }
 
+uint64_t AP_GPS::last_pps_time_usec(uint8_t instance) const
+{
+    if (drivers[instance] == nullptr) {
+        return 0;
+    }
+    return  drivers[instance]->get_last_pps_time_us();
+}
 /*
   send some more initialisation string bytes if there is room in the
   UART transmit buffer
