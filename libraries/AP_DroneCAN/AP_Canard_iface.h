@@ -71,6 +71,8 @@ public:
     uint16_t pool_peak_percent();
     const dronecan_protocol_Stats& get_protocol_stats() const { return protocol_stats; }
 
+    CanardInstance& get_canard() { return canard; }
+
 private:
     CanardInstance canard;
     AP_HAL::CANIface* ifaces[HAL_NUM_CAN_IFACES];
