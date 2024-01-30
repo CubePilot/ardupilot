@@ -1924,6 +1924,9 @@ AP_GPS_UBLOX::pps_interrupt(uint8_t pin, bool high, uint32_t timestamp_us)
 void
 AP_GPS_UBLOX::set_pps_desired_freq(uint8_t freq)
 {
+    if (_pps_freq == freq) {
+        return;
+    }
     _pps_freq = freq;
     _unconfigured_messages |= CONFIG_TP5;
 }
