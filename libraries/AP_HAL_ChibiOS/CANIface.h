@@ -243,6 +243,11 @@ public:
     // CAN Peripheral register structure
     static constexpr bxcan::CanType* const Can[HAL_NUM_CAN_IFACES] = { HAL_CAN_BASE_LIST };
 
+    // get timestamp of last packet sent with matching mask and value
+    uint64_t get_tracked_tx_timestamp() override {
+        return tracked_tx_timestamp_us;
+    }
+
 protected:
     bool add_to_rx_queue(const CanRxItem &rx_item) override {
         return rx_queue_.push(rx_item);
@@ -256,11 +261,6 @@ protected:
     void set_track_tx_timestamp(uint32_t mask, uint32_t value) override {
         tracked_tx_ts_mask = mask;
         tracked_tx_ts_value = value;
-    }
-
-    // get timestamp of last packet sent with matching mask and value
-    uint64_t get_tracked_tx_timestamp() override {
-        return tracked_tx_timestamp_us;
     }
 };
 #endif //HAL_NUM_CAN_IFACES
