@@ -105,6 +105,11 @@ public:
         return gps.option_set(option);
     }
 
+    // GPS in safeboot mode
+    virtual bool in_recovery_mode(void) const {
+        return false;
+    }
+
 protected:
     AP_HAL::UARTDriver *port;           ///< UART we are attached to
     AP_GPS &gps;                        ///< access to frontend (for parameters)

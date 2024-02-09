@@ -285,6 +285,19 @@ AP_GPS_UBLOX::_request_next_config(void)
             _next_message--;
         }
         break;
+    case STEP_VERSION:
+        if(!_have_version && !hal.util->get_soft_armed()) {
+            _request_version();
+        } else {
+            _unconfigured_messages &= ~CONFIG_VERSION;
+        }
+        if (in_safeboot_mode) {
+            // keep asking for version until we get a valid
+            // version message
+            _have_version = false;
+            _next_message--;
+        }
+        break;
     case STEP_TIMEGPS:
         if(!_request_message_rate(CLASS_NAV, MSG_TIMEGPS)) {
             _next_message--;
@@ -386,13 +399,6 @@ AP_GPS_UBLOX::_request_next_config(void)
 #else
         _unconfigured_messages & = ~CONFIG_RATE_RAW;
 #endif
-        break;
-    case STEP_VERSION:
-        if(!_have_version && !hal.util->get_soft_armed()) {
-            _request_version();
-        } else {
-            _unconfigured_messages &= ~CONFIG_VERSION;
-        }
         break;
     case STEP_TMODE:
         if (supports_F9_config()) {
@@ -1364,6 +1370,12 @@ AP_GPS_UBLOX::_parse_gps(void)
                         _unconfigured_messages |= CONFIG_TMODE_MODE;
                     }
                     _hardware_generation = UBLOX_F9;
+                }
+                if (memmem(_version.swVersion, sizeof(_version.swVersion), "ROM BOOT", 8) != nullptr) {
+                    GCS_SEND_TEXT(MAV_SEVERITY_INFO, "u-blox in safeboot mode");
+                    in_safeboot_mode = true;
+                } else {
+                    in_safeboot_mode = false;
                 }
                 // check if L1L5 in extension
                 if (memmem(_buffer.mon_ver.extension, sizeof(_buffer.mon_ver.extension), "L1L5", 4) != nullptr) {

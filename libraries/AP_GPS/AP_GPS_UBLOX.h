@@ -165,6 +165,9 @@ public:
 
     // ublox specific healthy checks
     bool is_healthy(void) const override;
+
+    // ublox in safeboot mode
+    bool in_recovery_mode(void) const override { return in_safeboot_mode; }
     
 private:
     // u-blox UBX protocol essentials
@@ -737,6 +740,7 @@ private:
 
     enum config_step {
         STEP_PVT = 0,
+        STEP_VERSION,
         STEP_NAV_RATE, // poll NAV rate
         STEP_SOL,
         STEP_PORT,
@@ -755,7 +759,6 @@ private:
         STEP_MON_HW2,
         STEP_RAW,
         STEP_RAWX,
-        STEP_VERSION,
         STEP_RTK_MOVBASE, // setup moving baseline
         STEP_TIM_TM2,
         STEP_M10,
@@ -898,6 +901,7 @@ private:
     static const config_list config_M10[];
     static const config_list config_L5_ovrd_ena[];
     static const config_list config_L5_ovrd_dis[];
+    bool in_safeboot_mode;
 };
 
 #endif
