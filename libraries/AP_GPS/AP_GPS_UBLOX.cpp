@@ -235,6 +235,19 @@ AP_GPS_UBLOX::_request_next_config(void)
             _next_message--;
         }
         break;
+    case STEP_VERSION:
+        if(!_have_version && !hal.util->get_soft_armed()) {
+            _request_version();
+        } else {
+            _unconfigured_messages &= ~CONFIG_VERSION;
+        }
+        if (in_safeboot_mode) {
+            // keep asking for version until we get a valid
+            // version message
+            _have_version = false;
+            _next_message--;
+        }
+        break;
     case STEP_TIMEGPS:
         if(!_request_message_rate(CLASS_NAV, MSG_TIMEGPS)) {
             _next_message--;
@@ -342,13 +355,6 @@ AP_GPS_UBLOX::_request_next_config(void)
 #else
         _unconfigured_messages & = ~CONFIG_RATE_RAW;
 #endif
-        break;
-    case STEP_VERSION:
-        if(!_have_version && !hal.util->get_soft_armed()) {
-            _request_version();
-        } else {
-            _unconfigured_messages &= ~CONFIG_VERSION;
-        }
         break;
     case STEP_TMODE:
         if (supports_F9_config()) {
@@ -1508,6 +1514,18 @@ AP_GPS_UBLOX::_parse_gps(void)
                     } else if (strncmp(_module, "NEO-F9P", UBLOX_MODULE_LEN) == 0) {
                         _hardware_variant = UBLOX_F9_NEO;
                     }
+                }
+                if (memmem(_version.swVersion, sizeof(_version.swVersion), "ROM BOOT", 8) != nullptr) {
+                    GCS_SEND_TEXT(MAV_SEVERITY_INFO, "u-blox in safeboot mode");
+                    in_safeboot_mode = true;
+                } else {
+                    in_safeboot_mode = false;
+                }
+                // check if L1L5 in extension
+                if (memmem(_buffer.mon_ver.extension, sizeof(_buffer.mon_ver.extension), "L1L5", 4) != nullptr) {
+                    supports_l5 = true;
+                    GCS_SEND_TEXT(MAV_SEVERITY_INFO, "u-blox supports L5 Band");
+                    _unconfigured_messages |= CONFIG_L5;
                 }
                 if (strncmp(_version.swVersion, "EXT CORE 4", 10) == 0) {
                     // a M9

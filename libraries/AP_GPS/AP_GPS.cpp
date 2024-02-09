@@ -896,6 +896,11 @@ void AP_GPS::update_instance(uint8_t instance)
 
     // we have an active driver for this instance
     bool result = drivers[instance]->read();
+    if (drivers[instance]->in_recovery_mode()) {
+        // We are probably in the middle of updating the unit
+        // nothing to do
+        return;
+    }
     uint32_t tnow = AP_HAL::millis();
 
     // if we did not get a message, and the idle timer of 2 seconds
