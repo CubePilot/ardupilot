@@ -1522,7 +1522,8 @@ AP_GPS_UBLOX::_parse_gps(void)
                     in_safeboot_mode = false;
                 }
                 // check if L1L5 in extension
-                if (memmem(_buffer.mon_ver.extension, sizeof(_buffer.mon_ver.extension), "L1L5", 4) != nullptr) {
+                if ((memmem(_buffer.mon_ver.extension, sizeof(_buffer.mon_ver.extension), "L1L5", 4) != nullptr) ||
+                    (memmem(_buffer.mon_ver.swVersion, sizeof(_buffer.mon_ver.swVersion), "L1L5", 4) != nullptr)) {
                     supports_l5 = true;
                     GCS_SEND_TEXT(MAV_SEVERITY_INFO, "u-blox supports L5 Band");
                     _unconfigured_messages |= CONFIG_L5;
