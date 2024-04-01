@@ -189,6 +189,8 @@ public:
         uint32_t time_week_ms;              ///< GPS time (milliseconds from start of GPS week)
         uint16_t time_week;                 ///< GPS week number
         Location location;                  ///< last fix location
+        int32_t altitude_msl_mm;            ///< altitude above mean sea level in cm
+        int32_t altitude_ellipsoid_mm;      ///< altitude above ellipsoid in cm
         float ground_speed;                 ///< ground speed in m/s
         float ground_course;                ///< ground course in degrees
         float gps_yaw;                      ///< GPS derived yaw information, if available (degrees)
@@ -312,6 +314,22 @@ public:
     }
     const Location &location() const {
         return location(primary_instance);
+    }
+
+    // get the altitude above mean sea level in cm
+    int32_t altitude_msl_mm(uint8_t instance) const {
+        return state[instance].altitude_msl_mm;
+    }
+    int32_t altitude_msl_mm() const {
+        return altitude_msl_mm(primary_instance);
+    }
+
+    // get the altitude above ellipsoid in cm
+    int32_t altitude_ellipsoid_mm(uint8_t instance) const {
+        return state[instance].altitude_ellipsoid_mm;
+    }
+    int32_t altitude_ellipsoid_mm() const {
+        return altitude_ellipsoid_mm(primary_instance);
     }
 
     // get the difference between WGS84 and AMSL. A positive value means

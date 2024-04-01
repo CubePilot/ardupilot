@@ -1438,7 +1438,8 @@ AP_GPS_UBLOX::_parse_gps(void)
         state.have_undulation = true;
         state.undulation = (_buffer.posllh.altitude_msl - _buffer.posllh.altitude_ellipsoid) * 0.001;
         set_alt_amsl_cm(state, _buffer.posllh.altitude_msl / 10);
-
+        state.altitude_msl_mm =  _buffer.posllh.altitude_msl;
+        state.altitude_ellipsoid_mm = _buffer.posllh.altitude_ellipsoid;
         state.status          = next_fix;
         _new_position = true;
         state.horizontal_accuracy = _buffer.posllh.horizontal_accuracy*1.0e-3f;
