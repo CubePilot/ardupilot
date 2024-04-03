@@ -117,6 +117,7 @@ public:
         GPS_TYPE_SITL = 100,
 #endif
     };
+    FUNCTOR_TYPEDEF(gps_raw_cb_t, void, const uint8_t*, uint32_t);
 
     // convenience methods for working out what general type an instance is:
     bool is_rtk_base(uint8_t instance) const;
@@ -596,6 +597,8 @@ public:
     bool get_error_codes(uint8_t instance, uint32_t &error_codes) const;
     bool get_error_codes(uint32_t &error_codes) const { return get_error_codes(primary_instance, error_codes); }
 
+    void set_gps_raw_cb(gps_raw_cb_t proc) { _gps_raw_cb = proc; }
+
     enum class SBAS_Mode : int8_t {
         Disabled = 0,
         Enabled = 1,
@@ -634,6 +637,7 @@ protected:
     AP_Int8 _blend_mask;
     AP_Int16 _driver_options;
     AP_Int8 _primary;
+    gps_raw_cb_t _gps_raw_cb;
 
     uint32_t _log_gps_bit = -1;
 

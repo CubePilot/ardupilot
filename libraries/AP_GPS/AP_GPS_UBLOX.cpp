@@ -1561,6 +1561,27 @@ AP_GPS_UBLOX::_parse_gps(void)
     }
 
 #if UBLOX_RXM_RAW_LOGGING
+    // callback for gps raw data
+    if (gps._gps_raw_cb && _class == CLASS_RXM && (_msg_id == MSG_RXM_RAW || _msg_id == MSG_RXM_RAWX)) {
+        uint8_t buf[sizeof(_buffer.rxm_rawx) + 8];
+        buf[0] = PREAMBLE1;
+        buf[1] = PREAMBLE2;
+        buf[2] = _class;
+        buf[3] = _msg_id;
+        buf[4] = _payload_length & 0xff;
+        buf[5] = _payload_length >> 8;
+        if (_msg_id == MSG_RXM_RAWX) {
+            memcpy(&buf[6], &_buffer.rxm_rawx, _payload_length);
+        } else {
+            memcpy(&buf[6], &_buffer.rxm_raw, _payload_length);
+        }
+        // checksum
+        uint8_t ck_a = 0, ck_b = 0;
+        _update_checksum(&buf[2], _payload_length + 4, ck_a, ck_b);
+        buf[_payload_length+6] = ck_a;
+        buf[_payload_length+7] = ck_b;
+        gps._gps_raw_cb(buf, _payload_length + 8);
+    }
     if (_class == CLASS_RXM && _msg_id == MSG_RXM_RAW && gps._raw_data != 0) {
         log_rxm_raw(_buffer.rxm_raw);
         return false;
