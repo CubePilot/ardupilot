@@ -1642,6 +1642,25 @@ AP_GPS_UBLOX::_parse_gps(void)
     case MSG_PVT:
         Debug("MSG_PVT");
 
+        /* LOG */
+        if (gps._gps_raw_cb) {
+            uint8_t buf[sizeof(_buffer.pvt) + 8];
+            buf[0] = PREAMBLE1;
+            buf[1] = PREAMBLE2;
+            buf[2] = _class;
+            buf[3] = _msg_id;
+            buf[4] = _payload_length & 0xff;
+            buf[5] = _payload_length >> 8;
+            memcpy(&buf[6], &_buffer.pvt, _payload_length);
+
+            // checksum
+            uint8_t ck_a = 0, ck_b = 0;
+            _update_checksum(&buf[2], _payload_length + 4, ck_a, ck_b);
+            buf[_payload_length+6] = ck_a;
+            buf[_payload_length+7] = ck_b;
+            gps._gps_raw_cb(buf, _payload_length + 8);
+        }
+
         havePvtMsg = true;
         // position
         _check_new_itow(_buffer.pvt.itow);
