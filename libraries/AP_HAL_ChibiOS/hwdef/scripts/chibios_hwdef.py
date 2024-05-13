@@ -672,7 +672,7 @@ class ChibiOSHWDef(hwdef.HWDef):
         ram_reserve_start = self.get_config('RAM_RESERVE_START', default=0, type=int)
         if ram_reserve_start == 0 and self.is_periph_fw():
             ram_reserve_start = 256
-        ram_map_bootloader = self.get_ram_map(use_bootloader=True)
+        ram_map_bootloader = self.get_ram_map(use_bootloader=False)
         ram0_start_address = ram_map_bootloader[0][0]
         return ram_reserve_start, ram0_start_address
 
