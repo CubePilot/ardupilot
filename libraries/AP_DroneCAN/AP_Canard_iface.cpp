@@ -222,7 +222,7 @@ void CanardInterface::processTx(bool raw_commands_only = false) {
         }
         const auto *stats = ifaces[iface]->get_statistics();
         bool iface_down = true;
-        if (stats == nullptr || (AP_HAL::micros64() - stats->last_transmit_us) < 200000UL) {
+        if (stats == nullptr || (AP_HAL::micros64() - stats->last_transmit_us) < 2000000UL) {
             /*
             We were not able to queue the frame for
             sending. Only mark the send as failing if the
