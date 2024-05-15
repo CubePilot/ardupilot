@@ -77,12 +77,20 @@ extern const AP_HAL::HAL &hal;
 
 // baudrates to try to detect GPSes with
 const uint32_t AP_GPS::_baudrates[] = {9600U, 115200U, 4800U, 19200U, 38400U, 57600U, 230400U, 460800U};
-
+#ifndef AP_GPS_UBLOX_DEFAULT_BAUDRATE
+#define AP_GPS_UBLOX_DEFAULT_BAUDRATE 230400
+#endif
 // initialisation blobs to send to the GPS to try to get it into the
 // right mode.
 const char AP_GPS::_initialisation_blob[] =
 #if AP_GPS_UBLOX_ENABLED
+#if AP_GPS_UBLOX_DEFAULT_BAUDRATE == 115200
+    UBLOX_SET_BINARY_115200
+#elif AP_GPS_UBLOX_DEFAULT_BAUDRATE == 460800
+    UBLOX_SET_BINARY_460800
+#else
     UBLOX_SET_BINARY_230400
+#endif
 #endif
 #if AP_GPS_SIRF_ENABLED
     SIRF_SET_BINARY
