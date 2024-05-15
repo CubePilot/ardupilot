@@ -25,6 +25,7 @@
 #include <utility>
 #include <AP_Math/AP_Math.h>
 #include <stdio.h>
+#include <GCS_MAVLink/GCS.h>
 
 #define RM3100_POLL_REG        0x00
 
@@ -65,6 +66,7 @@
 #define TMRC    0x94    // Update rate 150Hz
 #define CMM     0x71    // read 3 axes and set data ready if 3 axes are ready
 
+#define RUN_SELF_TEST 0xFA
 extern const AP_HAL::HAL &hal;
 
 AP_Compass_Backend *AP_Compass_RM3100::probe(AP_HAL::OwnPtr<AP_HAL::Device> dev,
@@ -122,6 +124,20 @@ bool AP_Compass_RM3100::init()
         ccz1 != CCP1_DEFAULT || ccz0 != CCP0_DEFAULT) {
         // couldn't read one of the cycle count registers or didn't recognize the default cycle count values
         dev->get_semaphore()->give();
+        return false;
+    }
+
+    uint8_t bist;
+    // do a self test of Coils
+    dev->write_register(RM3100_BIST_REG, RUN_SELF_TEST);
+    // sleep for 1ms
+    hal.scheduler->delay(1);
+    dev->read_registers(RM3100_BIST_REG, &bist, 1);
+
+    if (bist != RUN_SELF_TEST) {
+        // BIST failed
+        dev->get_semaphore()->give();
+        GCS_SEND_TEXT(MAV_SEVERITY_CRITICAL, "RM3100: BIST failed 0x%x", bist);
         return false;
     }
 
