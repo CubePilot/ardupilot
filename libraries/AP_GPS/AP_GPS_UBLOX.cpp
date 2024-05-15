@@ -1060,7 +1060,8 @@ int8_t AP_GPS_UBLOX::find_active_config_index(ConfigKey key) const
 
     return -1;
 }
-
+#pragma GCC diagnostic push
+#pragma GCC diagnostic error "-Wframe-larger-than=2600"
 bool
 AP_GPS_UBLOX::_legacy_config_update(void)
 {
@@ -1985,7 +1986,7 @@ AP_GPS_UBLOX::_parse_gps(void)
     }
     return false;
 }
-
+#pragma GCC diagnostic pop
 /*
  *  handle pps interrupt
  */
