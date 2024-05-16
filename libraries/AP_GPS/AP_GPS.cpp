@@ -783,12 +783,12 @@ AP_GPS_Backend *AP_GPS::_detect_instance(const uint8_t instance)
              type == GPS_TYPE_UBLOX) &&
             ((!_auto_config && _baudrates[dstate->current_baud] >= 38400) ||
              (_baudrates[dstate->current_baud] >= 115200 && option_set(DriverOptions::UBX_Use115200)) ||
-             _baudrates[dstate->current_baud] == 230400) &&
+             _baudrates[dstate->current_baud] == AP_GPS_UBLOX_DEFAULT_BAUDRATE) &&
             AP_GPS_UBLOX::_detect(dstate->ublox_detect_state, data)) {
             return NEW_NOTHROW AP_GPS_UBLOX(*this, params[instance], state[instance], port, GPS_ROLE_NORMAL);
         }
 
-        const uint32_t ublox_mb_required_baud = option_set(DriverOptions::UBX_MBUseUart2)?230400:460800;
+        const uint32_t ublox_mb_required_baud = option_set(DriverOptions::UBX_MBUseUart2)?AP_GPS_UBLOX_DEFAULT_BAUDRATE:460800;
         if ((type == GPS_TYPE_UBLOX_RTK_BASE ||
              type == GPS_TYPE_UBLOX_RTK_ROVER) &&
             _baudrates[dstate->current_baud] == ublox_mb_required_baud &&
