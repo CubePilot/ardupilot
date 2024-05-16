@@ -66,7 +66,7 @@
 #define TMRC    0x94    // Update rate 150Hz
 #define CMM     0x71    // read 3 axes and set data ready if 3 axes are ready
 
-#define RUN_SELF_TEST 0xFA
+#define RUN_SELF_TEST 0xFF
 extern const AP_HAL::HAL &hal;
 
 AP_Compass_Backend *AP_Compass_RM3100::probe(AP_HAL::OwnPtr<AP_HAL::Device> dev,
@@ -127,20 +127,6 @@ bool AP_Compass_RM3100::init()
         return false;
     }
 
-    uint8_t bist;
-    // do a self test of Coils
-    dev->write_register(RM3100_BIST_REG, RUN_SELF_TEST);
-    // sleep for 1ms
-    hal.scheduler->delay(1);
-    dev->read_registers(RM3100_BIST_REG, &bist, 1);
-
-    if (bist != RUN_SELF_TEST) {
-        // BIST failed
-        dev->get_semaphore()->give();
-        GCS_SEND_TEXT(MAV_SEVERITY_CRITICAL, "RM3100: BIST failed 0x%x", bist);
-        return false;
-    }
-
     dev->setup_checked_registers(8);
 
     dev->write_register(RM3100_TMRC_REG, TMRC, true); // CMM data rate
@@ -151,6 +137,23 @@ bool AP_Compass_RM3100::init()
     dev->write_register(RM3100_CCY0_REG, CCP0, true); // cycle count y
     dev->write_register(RM3100_CCZ1_REG, CCP1, true); // cycle count z
     dev->write_register(RM3100_CCZ0_REG, CCP0, true); // cycle count z
+
+    uint8_t bist;
+    // do a self test of Coils
+    dev->write_register(RM3100_BIST_REG, RUN_SELF_TEST);
+    // sleep for 1ms
+    hal.scheduler->delay(10);
+    dev->read_registers(RM3100_BIST_REG, &bist, 1);
+
+    if (bist != RUN_SELF_TEST) {
+        // BIST failed
+        dev->get_semaphore()->give();
+        GCS_SEND_TEXT(MAV_SEVERITY_CRITICAL, "RM3100: BIST failed 0x%x", bist);
+        return false;
+    }
+
+    // turn off BIST
+    dev->write_register(RM3100_BIST_REG, 0x00);
 
     _scaler = (1 / GAIN_CC200) * UTESLA_TO_MGAUSS; // has to be changed if using a different cycle count
 
