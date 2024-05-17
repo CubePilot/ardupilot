@@ -600,7 +600,7 @@ __RAMFUNC__ void UARTDriver::rxbuff_full_irq(void* self, uint32_t flags)
         /*
           we have data to copy out
          */
-        uart_drv->_readbuf.write(uart_drv->rx_bounce_buf[bounce_idx], len);
+        uart_drv->_rx_stats_overflow += (len - uart_drv->_readbuf.write(uart_drv->rx_bounce_buf[bounce_idx], len));
         uart_drv->_rx_stats_bytes += len;
         uart_drv->receive_timestamp_update();
     }
@@ -1704,13 +1704,14 @@ void UARTDriver::uart_info(ExpandingString &str)
     } else {
         str.printf("UART%u ", unsigned(sdef.instance));
     }
-    str.printf("TX%c=%8u RX%c=%8u TXBD=%6u RXBD=%6u\n",
+    str.printf("TX%c=%8u RX%c=%8u TXBD=%6u RXBD=%6u RXO=%8u\n",
                tx_dma_enabled ? '*' : ' ',
                unsigned(_tx_stats_bytes),
                rx_dma_enabled ? '*' : ' ',
                unsigned(_rx_stats_bytes),
                unsigned(_tx_stats_bytes * 10000 / (now_ms - _last_stats_ms)),
-               unsigned(_rx_stats_bytes * 10000 / (now_ms - _last_stats_ms)));
+               unsigned(_rx_stats_bytes * 10000 / (now_ms - _last_stats_ms)),
+               unsigned(_rx_stats_overflow));
     _tx_stats_bytes = 0;
     _rx_stats_bytes = 0;
     _last_stats_ms = now_ms;
