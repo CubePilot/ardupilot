@@ -761,7 +761,7 @@ singleton AP::crsf_telem() manual send_write_response lua_CRSF_send_response 1 1
 include AP_DroneCAN/AP_DroneCAN.h
 global manual DroneCAN_get_FlexDebug lua_DroneCAN_get_FlexDebug 4 2 depends (HAL_ENABLE_DRONECAN_DRIVERS==1)
 
-include ../Tools/AP_Periph/AP_Periph.h depends defined(HAL_BUILD_AP_PERIPH)
+include ../../../AP_Periph/AP_Periph.h depends defined(HAL_BUILD_AP_PERIPH)
 singleton AP_Periph_FW depends defined(HAL_BUILD_AP_PERIPH)
 singleton AP_Periph_FW rename periph
 singleton AP_Periph_FW method get_yaw_earth float
