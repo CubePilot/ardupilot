@@ -1372,6 +1372,10 @@ extern "C" {
 #define GCS_SEND_MESSAGE(msg)
 #define AP_HAVE_GCS_SEND_TEXT 1
 
+#include "../../../AP_Periph/MAVLink.h"
+#define GCS_MAVLINK MAVLink_Periph
+#define HAVE_PAYLOAD_SPACE(_chan, id) true
+
 /*
   we need a severity enum for the can_printf_severity function with no GCS present
  */

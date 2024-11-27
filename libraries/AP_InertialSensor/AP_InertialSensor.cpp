@@ -2482,7 +2482,7 @@ bool AP_InertialSensor::get_primary_accel_cal_sample_avg(uint8_t sample_num, Vec
     return true;
 }
 
-#if HAL_GCS_ENABLED
+#if HAL_GCS_ENABLED || defined(GCS_MAVLINK)
 bool AP_InertialSensor::calibrate_gyros()
 {
     init_gyro();

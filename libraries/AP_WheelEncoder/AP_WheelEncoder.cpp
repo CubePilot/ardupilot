@@ -14,6 +14,7 @@
  */
 
 #include "AP_WheelEncoder.h"
+#if AP_WHEELENCODER_ENABLED
 #include "WheelEncoder_Quadrature.h"
 #include "WheelEncoder_SITL_Quadrature.h"
 #include <AP_Logger/AP_Logger.h>
@@ -363,3 +364,4 @@ AP_WheelEncoder *wheelencoder()
 }
 
 }
+#endif // AP_WHEELENCODER_ENABLED

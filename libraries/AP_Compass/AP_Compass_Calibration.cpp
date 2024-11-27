@@ -240,7 +240,7 @@ bool Compass::_accept_calibration_mask(uint8_t mask)
     return success;
 }
 
-#if HAL_GCS_ENABLED
+#if HAL_GCS_ENABLED || defined(GCS_MAVLINK)
 bool Compass::send_mag_cal_progress(const GCS_MAVLINK& link)
 {
     const mavlink_channel_t chan = link.get_chan();

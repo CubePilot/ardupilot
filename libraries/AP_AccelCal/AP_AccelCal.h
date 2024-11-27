@@ -12,7 +12,9 @@
 #endif
 #endif
 
+#include <GCS_MAVLink/GCS.h>
 #include <GCS_MAVLink/GCS_MAVLink.h>
+
 #include "AccelCalibrator.h"
 
 #define AP_ACCELCAL_MAX_NUM_CLIENTS 4
@@ -45,7 +47,7 @@ public:
     // interface to the clients for registration
     static void register_client(AP_AccelCal_Client* client);
 
-#if HAL_GCS_ENABLED
+#if HAL_GCS_ENABLED || defined(GCS_MAVLINK)
     void handle_command_ack(const mavlink_command_ack_t &packet);
 #endif
 

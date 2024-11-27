@@ -14,6 +14,9 @@
  */
 #pragma once
 
+#include "AP_WheelEncoder_config.h"
+
+#if AP_WHEELENCODER_ENABLED
 #include <AP_Common/AP_Common.h>
 #include <AP_Param/AP_Param.h>
 #include <AP_Math/AP_Math.h>
@@ -133,3 +136,4 @@ private:
 namespace AP {
     AP_WheelEncoder *wheelencoder();
 }
+#endif // AP_WHEELENCODER_ENABLED

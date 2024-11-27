@@ -18,6 +18,7 @@
 #if CONFIG_HAL_BOARD == HAL_BOARD_SITL
 
 #include "WheelEncoder_SITL_Quadrature.h"
+#if AP_WHEELENCODER_ENABLED
 #include <GCS_MAVLink/GCS.h>
 
 extern const AP_HAL::HAL& hal;
@@ -86,4 +87,5 @@ void AP_WheelEncoder_SITL_Quadrature::update(void)
     copy_state_to_frontend(_distance_count, _total_count, 0, time_now);
 }
 
-#endif
+#endif // CONFIG_HAL_BOARD == HAL_BOARD_SITL
+#endif // AP_WHEELENCODER_ENABLED

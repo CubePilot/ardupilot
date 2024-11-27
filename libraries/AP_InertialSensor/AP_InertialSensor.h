@@ -289,7 +289,7 @@ public:
     void acal_update();
 #endif
 
-#if HAL_GCS_ENABLED
+#if HAL_GCS_ENABLED || defined(GCS_MAVLINK)
     bool calibrate_gyros();
 
     MAV_RESULT calibrate_trim();

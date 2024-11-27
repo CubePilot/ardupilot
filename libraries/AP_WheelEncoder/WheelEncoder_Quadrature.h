@@ -15,6 +15,8 @@
 #pragma once
 
 #include "AP_WheelEncoder.h"
+
+#if AP_WHEELENCODER_ENABLED
 #include "WheelEncoder_Backend.h"
 #include <Filter/Filter.h>
 #include <AP_Math/AP_Math.h>
@@ -57,3 +59,4 @@ private:
     uint8_t last_pin_a_value;
     uint8_t last_pin_b_value;
 };
+#endif // AP_WHEELENCODER_ENABLED

@@ -13,8 +13,10 @@
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <AP_Common/AP_Common.h>
 #include "AP_WheelEncoder.h"
+
+#if AP_WHEELENCODER_ENABLED
+#include <AP_Common/AP_Common.h>
 #include "WheelEncoder_Backend.h"
 
 // base class constructor.
@@ -56,3 +58,4 @@ void AP_WheelEncoder_Backend::copy_state_to_frontend(int32_t distance_count, uin
     _state.error_count = error_count;
     _state.last_reading_ms = last_reading_ms;
 }
+#endif // AP_WHEELENCODER_ENABLED

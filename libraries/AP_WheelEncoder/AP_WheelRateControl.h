@@ -15,6 +15,10 @@
 
 #pragma once
 
+#include "AP_WheelEncoder_config.h"
+
+#if AP_WHEELENCODER_ENABLED
+
 #include <AP_Common/AP_Common.h>
 #include <AP_Math/AP_Math.h>
 #include <AP_Param/AP_Param.h>
@@ -74,3 +78,4 @@ private:
     const AP_WheelEncoder&  _wheel_encoder;     // pointer to accompanying wheel encoder
     uint32_t                _last_update_ms;    // system time of last call to get_rate_controlled_throttle
 };
+#endif // AP_WHEELENCODER_ENABLED

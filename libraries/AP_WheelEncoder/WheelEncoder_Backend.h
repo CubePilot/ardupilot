@@ -14,8 +14,10 @@
  */
 #pragma once
 
-#include <AP_Common/AP_Common.h>
 #include "AP_WheelEncoder.h"
+
+#if AP_WHEELENCODER_ENABLED
+#include <AP_Common/AP_Common.h>
 
 class AP_WheelEncoder_Backend
 {
@@ -42,3 +44,4 @@ protected:
     AP_WheelEncoder &_frontend;
     AP_WheelEncoder::WheelEncoder_State &_state;
 };
+#endif // AP_WHEELENCODER_ENABLED

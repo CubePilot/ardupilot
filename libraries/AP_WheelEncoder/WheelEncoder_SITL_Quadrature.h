@@ -14,9 +14,9 @@
  */
 #pragma once
 
-#if CONFIG_HAL_BOARD == HAL_BOARD_SITL
+#include "WheelEncoder_Quadrature.h"
+#if CONFIG_HAL_BOARD == HAL_BOARD_SITL && AP_WHEELENCODER_ENABLED
 
-#include "WheelEncoder_Backend.h"
 #include <AP_Math/AP_Math.h>
 #include <SITL/SITL.h>
 
@@ -34,4 +34,4 @@ private:
     uint32_t _total_count; // total number of encoder ticks
 };
 
-#endif // CONFIG_HAL_BOARD
+#endif // CONFIG_HAL_BOARD == HAL_BOARD_SITL && AP_WHEELENCODER_ENABLED

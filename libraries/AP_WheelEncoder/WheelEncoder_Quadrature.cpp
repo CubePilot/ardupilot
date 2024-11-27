@@ -13,10 +13,10 @@
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <AP_HAL/AP_HAL.h>
-
 #include "WheelEncoder_Quadrature.h"
 
+#if AP_WHEELENCODER_ENABLED
+#include <AP_HAL/AP_HAL.h>
 #include <GCS_MAVLink/GCS.h>
 
 extern const AP_HAL::HAL& hal;
@@ -140,3 +140,4 @@ void AP_WheelEncoder_Quadrature::irq_handler(uint8_t pin,
     // record update time
     irq_state.last_reading_ms = timestamp * 1e-3f;
 }
+#endif // AP_WHEELENCODER_ENABLED

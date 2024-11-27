@@ -71,7 +71,7 @@ extern const AP_HAL::HAL& hal;
 const AP_Param::GroupInfo Compass::var_info[] = {
     // index 0 was used for the old orientation matrix
 
-#ifndef HAL_BUILD_AP_PERIPH
+#if !defined(HAL_BUILD_AP_PERIPH) && !COMPASS_CAL_ENABLED
     // @Param: OFS_X
     // @DisplayName: Compass offsets in milligauss on the X axis
     // @Description: Offset to be added to the compass x-axis values to compensate for metal in the frame

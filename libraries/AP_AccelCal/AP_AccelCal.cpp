@@ -362,7 +362,7 @@ bool AP_AccelCal::client_active(uint8_t client_num)
     return (bool)_clients[client_num]->_acal_get_calibrator(0);
 }
 
-#if HAL_GCS_ENABLED
+#if HAL_GCS_ENABLED || defined(GCS_MAVLINK)
 void AP_AccelCal::handle_command_ack(const mavlink_command_ack_t &packet)
 {
     if (!_waiting_for_mavlink_ack) {

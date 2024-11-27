@@ -1,4 +1,5 @@
 #include <AP_WheelEncoder/AP_WheelRateControl.h>
+#if AP_WHEELENCODER_ENABLED
 
 extern const AP_HAL::HAL& hal;
 
@@ -281,3 +282,5 @@ void AP_WheelRateControl::set_notch_sample_rate(float sample_rate)
     _rate_pid1.set_notch_sample_rate(sample_rate);
 #endif
 }
+
+#endif // AP_WHEELENCODER_ENABLED
