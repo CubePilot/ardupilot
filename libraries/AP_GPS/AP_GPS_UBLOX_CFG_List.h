@@ -125,7 +125,9 @@
  **********************************************************************/
 #define UBX_CFG_L5_OVRD_ENA \
     {ConfigKey::CFG_SIGNAL_L5_HEALTH_OVRD, 1}, \
-    {ConfigKey::CFG_SIGNAL_GPS_L5_ENA, 1},
+    {ConfigKey::CFG_SIGNAL_GPS_L5_ENA, 1}, \
+    {ConfigKey::CFG_SIGNAL_NAVIC_ENA, 1}, \
+    {ConfigKey::CFG_SIGNAL_NAVIC_L5_ENA, 1}
 
 #define UBX_CFG_L5_OVRD_DIS \
     {ConfigKey::CFG_SIGNAL_L5_HEALTH_OVRD, 0}
