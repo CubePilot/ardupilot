@@ -19,6 +19,12 @@ except ImportError:
     
 
 def build(bld):
+    # Skip if using custom AP_Periph builds
+    custom_boards = ['HerePro', 'Here3+', 'Here4', 'HereProAlpha', 'Here4AKM']
+    for board in custom_boards:
+        if fnmatch.fnmatch(bld.env.BOARD, board):
+            return
+
     targets = bld.ap_periph_boards()
     valid_target = False
     for t in targets:
