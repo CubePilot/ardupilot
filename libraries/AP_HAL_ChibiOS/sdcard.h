@@ -20,3 +20,7 @@
 bool sdcard_init();
 void sdcard_stop();
 bool sdcard_retry();
+
+#if HAL_HAVE_USB_CDC_MSD
+bool sdcard_is_mounted_by_host();
+#endif

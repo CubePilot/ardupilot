@@ -28,12 +28,18 @@
 
 extern const AP_HAL::HAL& hal;
 
+extern "C" {
+    void can_printf(const char *fmt, ...);
+}
+
 #if HAL_USE_FATFS
 
 #if HAL_HAVE_USB_CDC_MSD
 bool write_protected = false;
+static bool disk_mounted_by_host = false;  // Set when host accesses disk, cleared on USB disconnect
 static void block_filesys_access()
 {
+    disk_mounted_by_host = true;  // Host is accessing the disk, consider it mounted
     AP::FS().block_access();
     write_protected = true;
 }
@@ -254,6 +260,17 @@ bool sdcard_retry(void)
 #endif
     return false;
 }
+
+#if HAL_HAVE_USB_CDC_MSD
+bool sdcard_is_mounted_by_host(void)
+{
+    // Clear flag if USB is disconnected
+    if (!hal.gpio->usb_connected()) {
+        disk_mounted_by_host = false;
+    }
+    return disk_mounted_by_host;
+}
+#endif
 
 #if HAL_USE_MMC_SPI
 
