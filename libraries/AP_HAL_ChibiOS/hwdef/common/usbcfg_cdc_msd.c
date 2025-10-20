@@ -164,12 +164,12 @@ static const uint8_t vcom_configuration_descriptor_data[] = {
     /* Endpoint 4 Descriptor.*/
     USB_DESC_ENDPOINT     (USB_DATA_AVAILABLE_EP,       /* bEndpointAddress.*/
                            0x02,          /* bmAttributes (Bulk).             */
-                           0x0040,        /* wMaxPacketSize.                  */
+                           USB_MSD_EP_SIZE,        /* wMaxPacketSize.                  */
                            0x00),         /* bInterval.                       */
     /* Endpoint 4 Descriptor.*/
     USB_DESC_ENDPOINT     (USB_DATA_REQUEST_EP|0x80,    /* bEndpointAddress.*/
                            0x02,          /* bmAttributes (Bulk).             */
-                           0x0040,        /* wMaxPacketSize.                  */
+                           USB_MSD_EP_SIZE,        /* wMaxPacketSize.                  */
                            0x00)          /* bInterval.                       */
 };
 
@@ -268,6 +268,17 @@ uint32_t get_usb_baud(uint16_t endpoint_id)
         uint32_t rate;
         memcpy(&rate, &linecoding.dwDTERate[0], sizeof(rate));
         return rate;
+    }
+    return 0;
+}
+
+/*
+    get the requested usb parity.  Valid if get_usb_baud() returned non-zero
+*/
+uint8_t get_usb_parity(uint16_t endpoint_id)
+{
+    if (endpoint_id == 0) {
+        return linecoding.bParityType;
     }
     return 0;
 }
