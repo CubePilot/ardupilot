@@ -137,7 +137,8 @@
     X(CFG_MSGOUT, UBX_NAV_PVT_UART1,      uint8_t,  RATE_PVT) \
     X(CFG_MSGOUT, UBX_NAV_TIMEGPS_UART1,  uint8_t,  RATE_TIMEGPS) \
     X(CFG_MSGOUT, UBX_NAV_DOP_UART1,      uint8_t,  RATE_DOP) \
-    X(CFG_MSGOUT, UBX_MON_RF_UART1,       uint8_t,  RATE_HW)
+    X(CFG_MSGOUT, UBX_MON_RF_UART1,       uint8_t,  RATE_HW) \
+    X(CFG_MSGOUT, UBX_MON_UBX_TIM_TM2_UART1, uint8_t,  RATE_TIM_TM2)
 
 #define UBX_CFG_COMMON_UART1(X) \
     X(CFG_RATE,   NAV,                    uint16_t, 1) \
@@ -145,10 +146,12 @@
     X(CFG_MSGOUT, UBX_NAV_TIMEGPS_UART1,  uint8_t,  RATE_TIMEGPS) \
     X(CFG_MSGOUT, UBX_NAV_DOP_UART1,      uint8_t,  RATE_DOP) \
     X(CFG_MSGOUT, UBX_MON_RF_UART1,       uint8_t,  RATE_HW) \
+    X(CFG_MSGOUT, UBX_MON_UBX_TIM_TM2_UART1, uint8_t,  RATE_TIM_TM2)
     X(CFG_MSGOUT, UBX_NAV_PVT_UART2,      uint8_t,  0U) \
     X(CFG_MSGOUT, UBX_NAV_TIMEGPS_UART2,  uint8_t,  0U) \
     X(CFG_MSGOUT, UBX_NAV_DOP_UART2,      uint8_t,  0U) \
-    X(CFG_MSGOUT, UBX_MON_RF_UART2,       uint8_t,  0U)
+    X(CFG_MSGOUT, UBX_MON_RF_UART2,       uint8_t,  0U) \
+    X(CFG_MSGOUT, UBX_MON_UBX_TIM_TM2_UART2, uint8_t,  0U)
 
 #define UBX_CFG_COMMON_UART2(X) \
     X(CFG_UART2,  ENABLED,                uint8_t,  1) \
@@ -157,7 +160,9 @@
     X(CFG_MSGOUT, UBX_NAV_TIMEGPS_UART2,  uint8_t,  RATE_TIMEGPS) \
     X(CFG_MSGOUT, UBX_NAV_DOP_UART2,      uint8_t,  RATE_DOP) \
     X(CFG_MSGOUT, UBX_MON_RF_UART2,       uint8_t,  RATE_HW) \
+    X(CFG_MSGOUT, UBX_MON_UBX_TIM_TM2_UART2, uint8_t,  RATE_TIM_TM2) \
     X(CFG_MSGOUT, UBX_NAV_PVT_UART1,      uint8_t,  0U) \
     X(CFG_MSGOUT, UBX_NAV_TIMEGPS_UART1,  uint8_t,  0U) \
     X(CFG_MSGOUT, UBX_NAV_DOP_UART1,      uint8_t,  0U) \
-    X(CFG_MSGOUT, UBX_MON_RF_UART1,       uint8_t,  0U)
+    X(CFG_MSGOUT, UBX_MON_RF_UART1,       uint8_t,  0U) \
+    X(CFG_MSGOUT, UBX_MON_UBX_TIM_TM2_UART1, uint8_t,  0U)
