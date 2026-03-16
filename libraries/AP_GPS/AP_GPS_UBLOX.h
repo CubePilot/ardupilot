@@ -163,7 +163,7 @@ public:
     }
 
     bool get_error_codes(uint32_t &error_codes) const override {
-        if (_legacy_cfg_unsupported) {
+        if (_legacy_cfg_unsupported || option_set(AP_GPS::DriverOptions::ForceUBXConfigV2)) {
             return false;
         } else {
             error_codes = _unconfigured_messages;
