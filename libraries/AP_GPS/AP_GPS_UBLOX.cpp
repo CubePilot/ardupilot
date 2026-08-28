@@ -307,6 +307,14 @@ const AP_GPS_UBLOX::config_list AP_GPS_UBLOX::config_F9_debug_uart1_dis[] {
 void
 AP_GPS_UBLOX::_request_next_config(void)
 {
+    // boot config prime runs first, and regardless of GPS_AUTO_CONFIG:
+    // provoke the receiver's one-time reset-on-first-config-write before
+    // any real configuration is sent
+    if (_config_prime_active()) {
+        _config_prime_run();
+        return;
+    }
+
     // don't request config if we shouldn't configure the GPS
     if (gps._auto_config == AP_GPS::GPS_AUTO_CONFIG_DISABLE) {
         return;
@@ -1110,7 +1118,16 @@ AP_GPS_UBLOX::_parse_gps(void)
                     _unconfigured_messages &= ~CONFIG_GNSS;
                     break;
                 case MSG_CFG_MSG:
-                    // There is no way to know what MSG config was ack'ed, assume it was the last
+                    // while the config prime is active the step machine is
+                    // held off, so this ACK can only be for a prime CFG-MSG set
+                    if (_config_prime_state == ConfigPrimeState::TOGGLE) {
+                        _config_prime_state = ConfigPrimeState::RESTORE;
+                        _config_prime_send();
+                    } else if (_config_prime_state == ConfigPrimeState::RESTORE) {
+                        _config_prime_state = ConfigPrimeState::VERIFY;
+                        _config_prime_send();
+                    }
+                    // Otherwise: there is no way to know what MSG config was ack'ed, assume it was the last
                     // one requested. To verify it rerequest the last config we sent. If we miss
                     // the actual ack we will catch it next time through the poll loop, but that
                     // will be a good chunk of time later.
@@ -1149,6 +1166,15 @@ AP_GPS_UBLOX::_parse_gps(void)
             switch(_buffer.nack.clsID) {
             case CLASS_CFG:
                 switch(_buffer.nack.msgID) {
+                case MSG_CFG_MSG:
+                    if (_config_prime_active()) {
+                        // receiver rejects legacy CFG-MSG - skip priming
+                        GCS_SEND_TEXT(MAV_SEVERITY_WARNING,
+                                      "GPS %d: u-blox config prime NACK",
+                                      state.instance + 1);
+                        _config_prime_state = ConfigPrimeState::DONE;
+                    }
+                    break;
                 case MSG_CFG_VALGET:
                     if (active_config.list != nullptr) {
                         /*
@@ -1307,9 +1333,21 @@ AP_GPS_UBLOX::_parse_gps(void)
                     _request_port();
                     return false;
                 }
+                if (_config_prime_active() &&
+                    _buffer.msg_rate_6.msg_class == CLASS_NAV &&
+                    _buffer.msg_rate_6.msg_id == MSG_NAV_CLOCK) {
+                    _config_prime_rate_response(_buffer.msg_rate_6.rates[_ublox_port]);
+                    return false;
+                }
                 _verify_rate(_buffer.msg_rate_6.msg_class, _buffer.msg_rate_6.msg_id,
                              _buffer.msg_rate_6.rates[_ublox_port]);
             } else {
+                if (_config_prime_active() &&
+                    _buffer.msg_rate.msg_class == CLASS_NAV &&
+                    _buffer.msg_rate.msg_id == MSG_NAV_CLOCK) {
+                    _config_prime_rate_response(_buffer.msg_rate.rate);
+                    return false;
+                }
                 _verify_rate(_buffer.msg_rate.msg_class, _buffer.msg_rate.msg_id,
                              _buffer.msg_rate.rate);
             }
@@ -2097,6 +2135,73 @@ AP_GPS_UBLOX::_configure_message_rate(uint8_t msg_class, uint8_t msg_id, uint8_t
     msg.msg_id    = msg_id;
     msg.rate      = rate;
     return _send_message(CLASS_CFG, MSG_CFG_MSG, &msg, sizeof(msg));
+}
+
+/*
+ * boot config prime: called at config cadence while active. Walks
+ * POLL -> TOGGLE -> RESTORE -> VERIFY over the NAV-CLOCK CFG-MSG rate,
+ * resending the current state's message until the response advances it.
+ */
+void
+AP_GPS_UBLOX::_config_prime_run(void)
+{
+    if (++_config_prime_tries > 30) {
+        // stop blocking real configuration; the receiver is not
+        // responding to the prime sequence
+        GCS_SEND_TEXT(MAV_SEVERITY_WARNING,
+                      "GPS %d: u-blox config prime failed",
+                      state.instance + 1);
+        _config_prime_state = ConfigPrimeState::DONE;
+        return;
+    }
+    _config_prime_send();
+}
+
+// send (or resend) the message the current prime state is waiting on
+void
+AP_GPS_UBLOX::_config_prime_send(void)
+{
+    switch (_config_prime_state) {
+    case ConfigPrimeState::POLL:
+    case ConfigPrimeState::VERIFY:
+        _request_message_rate(CLASS_NAV, MSG_NAV_CLOCK);
+        break;
+    case ConfigPrimeState::TOGGLE: {
+        // guaranteed different from the current rate
+        const uint8_t rate = _config_prime_orig_rate ? 0 : 1;
+        _configure_message_rate(CLASS_NAV, MSG_NAV_CLOCK, rate);
+        break;
+    }
+    case ConfigPrimeState::RESTORE:
+        // guaranteed different from the toggled rate
+        _configure_message_rate(CLASS_NAV, MSG_NAV_CLOCK, _config_prime_orig_rate);
+        break;
+    case ConfigPrimeState::DONE:
+        break;
+    }
+}
+
+// handle a CFG-MSG rate poll response for the prime message
+void
+AP_GPS_UBLOX::_config_prime_rate_response(uint8_t rate)
+{
+    if (_config_prime_state == ConfigPrimeState::POLL) {
+        _config_prime_orig_rate = rate;
+        _config_prime_state = ConfigPrimeState::TOGGLE;
+        _config_prime_send();
+    } else if (_config_prime_state == ConfigPrimeState::VERIFY) {
+        if (rate == _config_prime_orig_rate) {
+            _config_prime_state = ConfigPrimeState::DONE;
+            GCS_SEND_TEXT(MAV_SEVERITY_INFO,
+                          "GPS %d: u-blox config primed",
+                          state.instance + 1);
+        } else {
+            // receiver reset between toggle and restore - write the
+            // original rate again
+            _config_prime_state = ConfigPrimeState::RESTORE;
+            _config_prime_send();
+        }
+    }
 }
 
 /*

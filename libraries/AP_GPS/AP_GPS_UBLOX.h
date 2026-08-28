@@ -843,6 +843,29 @@ private:
 
     bool _cfg_needs_save;
 
+    // boot config prime: the first config write after receiver power-up
+    // triggers an internal receiver reset. Provoke that reset
+    // deliberately, before real configuration, by toggling the CFG-MSG
+    // rate of an inert message (NAV-CLOCK, consumed silently by the
+    // parser) and restoring it. Runs even with GPS_AUTO_CONFIG disabled;
+    // blocks the config step machine until finished. Both writes are
+    // guaranteed rate changes (orig?0:1, then orig) and the restore is
+    // verified by a final rate poll.
+    enum class ConfigPrimeState : uint8_t {
+        POLL = 0,   // zero so member zero-init starts here; CFG-MSG rate poll sent
+        TOGGLE,     // CFG-MSG set to changed rate sent, awaiting ACK
+        RESTORE,    // CFG-MSG set back to orig rate sent, awaiting ACK
+        VERIFY,     // CFG-MSG rate poll sent, awaiting rate == orig
+        DONE
+    };
+    ConfigPrimeState _config_prime_state;
+    uint8_t  _config_prime_orig_rate;
+    uint8_t  _config_prime_tries;
+    void _config_prime_rate_response(uint8_t rate);
+    bool _config_prime_active(void) const { return _config_prime_state != ConfigPrimeState::DONE; }
+    void _config_prime_run(void);
+    void _config_prime_send(void);
+
     bool noReceivedHdop;
 
     bool havePvtMsg;
