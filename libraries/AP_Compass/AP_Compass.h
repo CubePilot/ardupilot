@@ -234,6 +234,12 @@ public:
 
     bool auto_declination_enabled() const { return _auto_declination != 0; }
 
+#if AP_COMPASS_RAW_SAMPLE_CB_ENABLED
+    // called for every sample in board frame (mGauss), before any calibration correction
+    FUNCTOR_TYPEDEF(raw_sample_cb_t, void, uint8_t, const Vector3f &);
+    void set_raw_sample_cb(raw_sample_cb_t cb) { _raw_sample_cb = cb; }
+#endif
+
     // set overall board orientation
     void set_board_orientation(enum Rotation orientation) {
         _board_orientation = orientation;
@@ -362,6 +368,9 @@ public:
     uint8_t get_first_usable(void) const { return _first_usable; }
 
 private:
+#if AP_COMPASS_RAW_SAMPLE_CB_ENABLED
+    raw_sample_cb_t _raw_sample_cb;
+#endif
     static Compass *_singleton;
 
     // Use Priority and StateIndex typesafe index types

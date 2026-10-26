@@ -11,6 +11,11 @@
 #define AP_COMPASS_ENABLED 1
 #endif
 
+// callback with each rotated, uncorrected sample (raw logging)
+#ifndef AP_COMPASS_RAW_SAMPLE_CB_ENABLED
+#define AP_COMPASS_RAW_SAMPLE_CB_ENABLED 0
+#endif
+
 #ifndef AP_COMPASS_DIAGONALS_ENABLED
 #define AP_COMPASS_DIAGONALS_ENABLED 1
 #endif

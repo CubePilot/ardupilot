@@ -106,6 +106,13 @@ protected:
 
     void rotate_field(Vector3f &mag);
     void publish_raw_field(const Vector3f &mag);
+#if AP_COMPASS_RAW_SAMPLE_CB_ENABLED
+    // hand the rotated, uncorrected sample to the raw sample callback
+    void publish_raw_sample_cb(const Vector3f &mag);
+#define AP_COMPASS_PUBLISH_RAW_SAMPLE(mag) publish_raw_sample_cb(mag)
+#else
+#define AP_COMPASS_PUBLISH_RAW_SAMPLE(mag) do {} while (0)
+#endif
     void correct_field(Vector3f &mag);
     void publish_filtered_field(const Vector3f &mag);
     void set_last_update_usec(uint32_t last_update);

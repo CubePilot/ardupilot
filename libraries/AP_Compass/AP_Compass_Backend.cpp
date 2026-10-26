@@ -141,7 +141,7 @@ void AP_Compass_Backend::accumulate_sample(Vector3f &field,
     rotate_field(field);
 
     /* publish raw_field (uncorrected point sample) for calibration use */
-    publish_raw_field(field);
+    publish_raw_field(field); AP_COMPASS_PUBLISH_RAW_SAMPLE(field);
 
     /* correct raw_field for known errors */
     correct_field(field);
@@ -298,5 +298,15 @@ enum Rotation AP_Compass_Backend::get_board_orientation(void) const
 {
     return _compass._board_orientation;
 }
+
+#if AP_COMPASS_RAW_SAMPLE_CB_ENABLED
+// kept at end of file so builds without the callback keep their __LINE__ values
+void AP_Compass_Backend::publish_raw_sample_cb(const Vector3f &mag)
+{
+    if (_compass._raw_sample_cb) {
+        _compass._raw_sample_cb(instance, mag);
+    }
+}
+#endif
 
 #endif  // AP_COMPASS_ENABLED
