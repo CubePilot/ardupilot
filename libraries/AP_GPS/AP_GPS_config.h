@@ -93,6 +93,11 @@
   #define AP_GPS_SIRF_ENABLED AP_GPS_BACKEND_DEFAULT_ENABLED
 #endif
 
+// callback with every checksum-valid u-blox frame (raw logging)
+#ifndef AP_GPS_UBLOX_FRAME_CB_ENABLED
+#define AP_GPS_UBLOX_FRAME_CB_ENABLED 0
+#endif
+
 #ifndef AP_GPS_UBLOX_ENABLED
   #define AP_GPS_UBLOX_ENABLED AP_GPS_BACKEND_DEFAULT_ENABLED
 #endif

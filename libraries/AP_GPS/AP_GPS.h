@@ -599,6 +599,12 @@ public:
 
     void set_gps_raw_cb(gps_raw_cb_t proc) { _gps_raw_cb = proc; }
 
+#if AP_GPS_UBLOX_FRAME_CB_ENABLED
+    // called for every checksum-valid UBX frame: instance, class, id, payload, payload length
+    FUNCTOR_TYPEDEF(ubx_frame_cb_t, void, uint8_t, uint8_t, uint8_t, const uint8_t*, uint16_t);
+    void set_ubx_frame_cb(ubx_frame_cb_t proc) { _ubx_frame_cb = proc; }
+#endif
+
     enum class SBAS_Mode : int8_t {
         Disabled = 0,
         Enabled = 1,
@@ -638,6 +644,9 @@ protected:
     AP_Int16 _driver_options;
     AP_Int8 _primary;
     gps_raw_cb_t _gps_raw_cb;
+#if AP_GPS_UBLOX_FRAME_CB_ENABLED
+    ubx_frame_cb_t _ubx_frame_cb;
+#endif
 
     uint32_t _log_gps_bit = -1;
 

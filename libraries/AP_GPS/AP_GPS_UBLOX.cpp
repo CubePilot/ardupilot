@@ -788,6 +788,11 @@ AP_GPS_UBLOX::read(void)
                 _cfg_v2.process_valget_complete(true);
             }
 #endif
+#if AP_GPS_UBLOX_FRAME_CB_ENABLED
+            if (gps._ubx_frame_cb) {
+                gps._ubx_frame_cb(state.instance, _class, _msg_id, (const uint8_t *)&_buffer, _payload_length);
+            }
+#endif
             if (_parse_gps()) {
                 parsed = true;
             }
@@ -1014,6 +1019,12 @@ void AP_GPS_UBLOX::log_rxm_rawx(const struct ubx_rxm_rawx &raw)
 void AP_GPS_UBLOX::unexpected_message(void)
 {
     Debug("Unexpected message 0x%02x 0x%02x", (unsigned)_class, (unsigned)_msg_id);
+#if AP_GPS_UBLOX_FRAME_CB_ENABLED
+    if (gps._auto_config == AP_GPS::GPS_AUTO_CONFIG_DISABLE) {
+        // receiver configured externally, leave its message set alone
+        return;
+    }
+#endif
     if (++_disable_counter == 0) {
         // disable future sends of this message id, but
         // only do this every 256 messages, as some
@@ -1594,6 +1605,8 @@ AP_GPS_UBLOX::_parse_gps(void)
 
 #if UBLOX_RXM_RAW_LOGGING
     // callback for gps raw data
+    // (replaced by the frame callback when enabled; its stack copy scales with UBLOX_MAX_RXM_RAWX_SATS)
+#if !AP_GPS_UBLOX_FRAME_CB_ENABLED
     if (gps._gps_raw_cb && _class == CLASS_RXM && (_msg_id == MSG_RXM_RAW || _msg_id == MSG_RXM_RAWX)) {
         uint8_t buf[sizeof(_buffer.rxm_rawx) + 8];
         buf[0] = PREAMBLE1;
@@ -1614,6 +1627,7 @@ AP_GPS_UBLOX::_parse_gps(void)
         buf[_payload_length+7] = ck_b;
         gps._gps_raw_cb(buf, _payload_length + 8);
     }
+#endif
     if (_class == CLASS_RXM && _msg_id == MSG_RXM_RAW && gps._raw_data != 0) {
         log_rxm_raw(_buffer.rxm_raw);
         return false;
@@ -1988,6 +2002,11 @@ AP_GPS_UBLOX::_parse_gps(void)
         }
     default:
         Debug("Unexpected NAV message 0x%02x", (unsigned)_msg_id);
+#if AP_GPS_UBLOX_FRAME_CB_ENABLED
+        if (gps._auto_config == AP_GPS::GPS_AUTO_CONFIG_DISABLE) {
+            return false;
+        }
+#endif
         if (++_disable_counter == 0) {
             Debug("Disabling NAV message 0x%02x", (unsigned)_msg_id);
             _configure_message_rate(CLASS_NAV, _msg_id, 0);
