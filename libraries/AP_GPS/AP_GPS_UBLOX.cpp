@@ -598,7 +598,10 @@ AP_GPS_UBLOX::read(void)
     bool parsed = false;
     uint32_t millis_now = AP_HAL::millis();
 #if AP_GPS_UBLOX_CFGv2_ENABLED
-    _cfg_v2.update();
+    // GPS_AUTO_CONFIG 0: the receiver is configured by someone else
+    if (gps._auto_config != AP_GPS::GPS_AUTO_CONFIG_DISABLE) {
+        _cfg_v2.update();
+    }
 #endif
     // walk through the gps configuration at 1 message per second
     if (millis_now - _last_config_time >= _delay_time && !_legacy_cfg_unsupported && !option_set(AP_GPS::DriverOptions::ForceUBXConfigV2)) {
